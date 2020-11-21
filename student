@@ -1,0 +1,952 @@
+import React,{Component} from 'react';
+import {
+    Container,
+    Card,
+    Form,
+    Row,
+    Col,
+    Button
+} from 'react-bootstrap';
+
+import axios from 'axios';
+import swal from 'sweetalert';
+
+import CustomButton from '../../../components/Button/Button';
+import CustomTextBox from '../../../components/TextBox/TextBox';
+import { pathOr, isEmpty, trim, lensPath, set, remove ,equals,head,filter,data} from 'ramda';
+
+
+
+const validNameRegex = RegExp(
+  /^[a-z]+$/i
+);
+const validEmailRegex = RegExp(
+  /^[a-z][\w-]+@([a-z]{2,8})\.([a-z]{2,4})$/
+);
+const validPasswordRegex = RegExp(
+  /^(?=([a-z0-9]))$/i
+);
+const validMobileRegex = RegExp(
+  /^[0-9]{3}-[0-9]{3}-[0-9]{4}$/
+);
+const validAddressRegex = RegExp(
+  /^.+$/
+);
+const validateForm = errors => {
+  let valid = true;
+  Object.values(errors).forEach(val => val.length > 0 && (valid= false));
+  return valid;
+}
+
+class ManageStudents extends Component{
+    constructor() {
+        super();
+    
+        this.state = {
+            ClientId: null,
+            Select_Student: '',
+            Student_First_Name: '',
+            Student_Middle_Name: '',
+            Student_Last_Name: '',
+            Student_Email: '',
+            Student_Mobile: '',
+            Emergency_Contact_Person1: '',
+            Emergency_Mobile1: '',
+            Relationship_1: '',
+            Emergency_Contact_Person2: '',
+            Emergency_Mobile2:'',
+            Relationship_2: '',
+            Student_Address: '',
+            City: '',
+            State:'',
+            Zip_Code:'',
+            Country: '',
+            gate_student: '',
+            Current_School_Attending: '',
+            academy_magnet_cbse:'',
+            School_District:'' ,
+            Grade_Level: '',
+            GAP:'' ,
+            Additional_Comments: '',
+            Enroll_Program:'' ,
+            Assign_Teachers: '',
+            Continuing_Student:'',
+            Discount_Applied_Code:'',
+            Exit_Program: '',
+            Exit_Comments:'',
+            Password:'',
+            students:[],           
+            teachers:[],
+            
+            errors : {
+            Student_First_Name: '',
+            Student_Middle_Name: '',
+            Student_Last_Name: '',
+            Student_Email: '',
+            Student_Mobile: '',
+            Emergency_Contact_Person1: '',
+            Emergency_Mobile1: '',
+            Relationship_1: '',
+            Emergency_Contact_Person2: '',
+            Emergency_Mobile2:'',
+            Relationship_2: '',
+            Student_Address: '',
+            City: '',
+            State:'',
+            Zip_Code:'',
+            Country: '',
+            gate_student: '',
+            Current_School_Attending: '',
+            academy_magnet_cbse:'',
+            School_District:'' ,
+            Grade_Level: '',
+            GAP:'' ,
+            Additional_Comments: '',
+            Enroll_Program:'' ,
+            Assign_Teachers: '',
+            Continuing_Student:'',
+            Discount_Applied_Code:'',
+            Exit_Program: '',
+            Exit_Comments:'',
+            Password:''
+
+            }
+
+            
+      }
+    }
+    componentDidMount() {
+       
+          axios.get(`http://localhost:8000/student/`)
+          .then(res => {
+            const students = res.data;
+            this.setState({ students });
+            console.log(students);
+          })
+          
+        axios.get(`http://localhost:8000/teacher/`)
+        .then(res => {
+          const teachers = res.data;
+          this.setState({ teachers });
+          console.log(teachers);
+        })
+      }
+      
+      getStudentsName = (students,student_name)=>{
+        const getClientDeatilsWithName = (data) => {
+      
+          return equals(
+            pathOr(
+              {},
+              [
+                'Student_First_Name'
+              ],
+              data
+            ),
+            student_name
+          )
+              
+        }
+        return filter(getClientDeatilsWithName,students)
+      }
+     
+    onChange = (e) => {
+
+      e.preventDefault();
+      const { name,value } = e.target;
+      let errors = this.state.errors;
+
+      switch (name){
+
+        case 'Student_First_Name':
+          errors.Student_First_Name =
+            validNameRegex.test(value)
+            ? ''
+            : 'First Name is not valid';
+          break;
+        case 'Student_Middle_Name':
+          errors.Student_Middle_Name =
+            validNameRegex.test(value)
+            ? ''
+            : 'Name is not valid';
+          break;
+        case 'Student_Last_Name':
+          errors.Student_Last_Name =
+          validNameRegex.test(value)
+            ? ''
+            : 'Name is not valid';
+          break;
+        case 'Student_Email':
+          errors.Student_Email =
+            validEmailRegex.test(value)
+            ? ''
+            : 'Email is not valid';
+          break;
+        case 'Password':
+            errors.Password =
+              validPasswordRegex.test(value)
+              ? ''
+              : 'Password is not valid';
+          break;
+        case 'Student_Mobile':
+            errors.Student_Mobile =
+              validMobileRegex.test(value)
+              ? ''
+              : 'Mobile number is not valid';
+          break;
+          case 'Emergency_Contact_Person1':
+            errors.Emergency_Contact_Person1 =
+              validNameRegex.test(value)
+              ? ''
+              : 'Name is not valid';
+            break;
+            case 'Emergency_Mobile1':
+          errors.Emergency_Mobile1 =
+            validMobileRegex.test(value)
+            ? ''
+            : 'Mobile Number is not valid';
+          break;
+          
+          case 'Emergency_Contact_Person2':
+          errors.Emergency_Contact_Person2 =
+            validNameRegex.test(value)
+            ? ''
+            : 'Name is not valid';
+          break;
+          case 'Emergency_Mobile2':
+          errors.Emergency_Mobile2 =
+            validMobileRegex.test(value)
+            ? ''
+            : 'Mobile number is not valid';
+          break;
+          
+          case 'Student_Address':
+          errors.Student_Address =
+            validAddressRegex.test(value)
+            ? ''
+            : ' is not valid';
+          break;
+          case 'City':
+          errors.City =
+            validEmailRegex.test(value)
+            ? ''
+            : 'Email is not valid';
+          break;
+          case 'State':
+          errors.State =
+            validEmailRegex.test(value)
+            ? ''
+            : 'Email is not valid';
+          break;
+          case 'Zip_Code':
+          errors.Zip_Code =
+            validEmailRegex.test(value)
+            ? ''
+            : 'Email is not valid';
+          break;
+          case 'Country':
+          errors.Country=
+            validEmailRegex.test(value)
+            ? ''
+            : 'Email is not valid';
+          break;
+        default:
+          break;
+     
+      }
+
+        if(equals(e.target.name,"Select_Student")){
+          
+         const filterData =  head(this.getStudentsName(this.state.students,e.target.value))
+          console.log(filterData)
+            this.setState({
+                            ClientId: pathOr("",["id"],filterData),                          
+                            Select_Student: pathOr("",["Select_Student"],filterData),
+                            Student_First_Name: pathOr("",["Student_First_Name"],filterData),
+                            Student_Middle_Name: pathOr("",["Student_Middle_Name"],filterData),
+                            Student_Last_Name: pathOr("",["Student_Last_Name"],filterData),
+                            Student_Email: pathOr("",["Student_Email"],filterData),
+                            Student_Mobile: pathOr("",["Student_Mobile"],filterData),
+                            Emergency_Contact_Person1: pathOr("",["Emergency_Contact_Person1"],filterData),
+                            Emergency_Mobile1: pathOr("",["Emergency_Mobile1"],filterData),
+                            Relationship_1: pathOr("",["Relationship_1"],filterData),
+                            Emergency_Contact_Person2: pathOr("",["Emergency_Contact_Person2"],filterData),
+                            Emergency_Mobile2:pathOr("",["Emergency_Mobile2"],filterData),
+                            Relationship_2: pathOr("",["Relationship_2"],filterData),
+                            Student_Address: pathOr("",["Student_Address"],filterData),
+                            City: pathOr("",["City"],filterData),
+                            State:pathOr("",["State"],filterData),
+                            Zip_Code:pathOr("",["Zip_Code"],filterData),
+                            Country: pathOr("",["Country"],filterData),
+                            gate_student: pathOr("",["gate_student"],filterData),
+                            Current_School_Attending: pathOr("",["Current_School_Attending"],filterData),
+                            academy_magnet_cbse: pathOr("",[" academy_magnet_cbse"],filterData),
+                            School_District: pathOr("",["School_District"],filterData),
+                            Grade_Level: pathOr("",["Grade_Level"],filterData),
+                            GAP:pathOr("",["GAP"],filterData),
+                            Additional_Comments: pathOr("",["Additional_Comments"],filterData),
+                            Enroll_Program:pathOr("",["Enroll_Program"],filterData),
+                            Assign_Teachers: pathOr("",["Assign_Teachers"],filterData),
+                            Continuing_Student:pathOr("",["Continuing_Student"],filterData),
+                            Discount_Applied_Code:pathOr("",["Discount_Applied_Code"],filterData),
+                            Exit_Program: pathOr("",["Exit_Program"],filterData),
+                            Exit_Comments:pathOr("",["Exit_Comments"],filterData),
+                            Exit_Comments:pathOr("",["Password"],filterData),
+            })
+            return
+        }
+        this.setState({ [e.target.name]: e.target.value });
+        console.log(e.target.value,'value')
+    }
+
+    onSubmit = (e) => {
+        e.preventDefault();
+        // get our form data out of state
+        const { 
+            Select_Student,
+            Student_First_Name,
+            Student_Middle_Name,
+            Student_Last_Name,
+            Student_Email,
+            Student_Mobile,
+            Emergency_Contact_Person1,
+            Emergency_Mobile1,
+            Relationship_1,
+            Emergency_Contact_Person2,
+            Emergency_Mobile2,
+            Relationship_2,
+            Student_Address,
+            City,
+            State,
+            Zip_Code,
+            Country,
+            gate_student,
+            Current_School_Attending,
+            academy_magnet_cbse,
+            School_District,
+            Grade_Level,
+            GAP,
+            Additional_Comments,
+            Enroll_Program,
+            Assign_Teachers,
+            Continuing_Student,
+            Discount_Applied_Code,
+            Exit_Program,
+            Exit_Comments,
+            Password
+            } = this.state;
+
+            if (validateForm(this.state.errors)){
+              console.info('Valid Form')
+              axios.post('http://localhost:8000/student/', 
+                    {             
+                        Select_Student,
+                        Student_First_Name,
+                        Student_Middle_Name,
+                        Student_Last_Name,
+                        Student_Email,
+                        Student_Mobile,
+                        Emergency_Contact_Person1,
+                        Emergency_Mobile1,
+                        Relationship_1,
+                        Emergency_Contact_Person2,
+                        Emergency_Mobile2,
+                        Relationship_2,
+                        Student_Address,
+                        City,
+                        State,
+                        Zip_Code,
+                        Country,
+                        gate_student,
+                        Current_School_Attending,
+                        academy_magnet_cbse,
+                        School_District,
+                        Grade_Level,
+                        GAP,
+                        Additional_Comments,
+                        Enroll_Program,
+                        Assign_Teachers,
+                        Continuing_Student,
+                        Discount_Applied_Code,
+                        Exit_Program,
+                        Exit_Comments,
+                        Password          
+                    })                   
+            .then(function (response) {
+                  //access the results here....           
+                swal("success!", "Student added", "success").then(setInterval(function(){window.location.reload();},1500))// alert
+                console.log(response);// log
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
+            }
+            else{
+              console.error('Invalid Form')
+            }
+      }
+      onUpdate =() =>{
+        const { ClientId,
+            Select_Student,
+            Student_First_Name,
+            Student_Middle_Name,
+            Student_Last_Name,
+            Student_Email,
+            Student_Mobile,
+            Emergency_Contact_Person1,
+            Emergency_Mobile1,
+            Relationship_1,
+            Emergency_Contact_Person2,
+            Emergency_Mobile2,
+            Relationship_2,
+            Student_Address,
+            City,
+            State,
+            Zip_Code,
+            Country,
+            gate_student,
+            Current_School_Attending,
+            academy_magnet_cbse,
+            School_District,
+            Grade_Level,
+            GAP,
+            Additional_Comments,
+            Enroll_Program,
+            Assign_Teachers,
+            Continuing_Student,
+            Discount_Applied_Code,
+            Exit_Program,
+            Exit_Comments, 
+            Password
+        
+        } = this.state;
+
+        axios.put('http://localhost:8000/student/'  + ClientId + '/', {
+                         Select_Student,
+                        Student_First_Name,
+                        Student_Middle_Name,
+                        Student_Last_Name,
+                        Student_Email,
+                        Student_Mobile,
+                        Emergency_Contact_Person1,
+                        Emergency_Mobile1,
+                        Relationship_1,
+                        Emergency_Contact_Person2,
+                        Emergency_Mobile2,
+                        Relationship_2,
+                        Student_Address,
+                        City,
+                        State,
+                        Zip_Code,
+                        Country,
+                        gate_student,
+                        Current_School_Attending,
+                        academy_magnet_cbse,
+                        School_District,
+                        Grade_Level,
+                        GAP,
+                        Additional_Comments,
+                        Enroll_Program,
+                        Assign_Teachers,
+                        Continuing_Student,
+                        Discount_Applied_Code,
+                        Exit_Program,
+                        Exit_Comments,
+                        Password          
+        })  
+        .then(function (response) {
+              //access the results here....           
+            swal("success!", "Student Updated", "success").then(setInterval(function(){window.location.reload();},1500));// alert
+            console.log(response);// log
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      }
+      onDelete = () =>{
+        const {ClientId} = this.state;
+            swal({
+                title: "Are you sure?",
+                text: "Once deleted, you will not be able to recover this Record file!",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+              })
+              .then((willDelete) => {
+                if (willDelete) {
+                    axios.delete('http://localhost:8000/student/'  + ClientId + '/') 
+                  swal("Student Record Deleted!", {
+                    icon: "success",
+                  }).then(setInterval(function(){window.location.reload();},1500));
+                } else {
+                  swal("Student Record is safe!");
+                }
+              })
+              .catch(function (error) {
+                console.log(error);
+               })
+            }
+    render(){
+        const { 
+            Select_Student,
+            Student_First_Name,
+            Student_Middle_Name,
+            Student_Last_Name,
+            Student_Email,
+            Student_Mobile,
+            Emergency_Contact_Person1,
+            Emergency_Mobile1,
+            Relationship_1,
+            Emergency_Contact_Person2,
+            Emergency_Mobile2,
+            Relationship_2,
+            Student_Address,
+            City,
+            State,
+            Zip_Code,
+            Country,
+            gate_student,
+            Current_School_Attending,
+            academy_magnet_cbse,
+            School_District,
+            Grade_Level,
+            GAP,
+            Additional_Comments,
+            Enroll_Program,
+            Assign_Teachers,
+            Continuing_Student,
+            Discount_Applied_Code,
+            Exit_Program,
+            Exit_Comments,
+            Password,
+            errors
+            } = this.state;
+        return(
+            <>
+                
+    <Container  style={{marginTop: '50px'}}>        
+            <Card >
+                <nav className="nav justify-content-center" >
+                    <p className="headTitle">Administration Student Profile</p>
+                </nav>
+             <Form >   
+                <Card.Body>
+                    <Row className="row justify-content-center">
+                        <Col lg={4} sm={12}>
+                            <Form.Group as={Row}>
+                                <Form.Label htmlFor="Student" className="col col-form-label">Select Student</Form.Label>
+                                <Col >
+                                
+                                    <Form.Control as="select" custom className="selectStyle" id="Select Student" name="Select_Student"  onChange={this.onChange} required>
+                                    <option value="" disabled selected>select Student</option>
+                                        { this.state.students.map(students =>
+                                             <option key={students.id} value={Student => students.Student_First_Name}>{students.Student_First_Name}</option>)}    
+                                    </Form.Control>
+                                </Col>
+                            </Form.Group>
+
+                            {errors.Student_First_Name.length > 0 && 
+                               <span className='error'> {errors.Student_First_Name} </span> }
+                            <CustomTextBox
+                              htFor="First Name" 
+                              style="col col-form-label"
+                              txtBoxLabel="Student First Name"
+                              txtBoxType="text"
+                              txtBoxID="first name"
+                              txtBoxPH="First Name"                                      
+                              txtBoxValue={Student_First_Name}
+                              changeEvent={this.onChange}
+                              txtBoxName="Student_First_Name"
+                             />
+                            {errors.Student_Middle_Name.length > 0 && 
+                               <span className='error'> {errors.Student_Middle_Name} </span> }
+                            <CustomTextBox
+                              htFor="Middle Name" 
+                              style="col col-form-label"
+                              txtBoxLabel="Student Middle Name"
+                              txtBoxType="text"
+                              txtBoxID="Middle_Name"
+                              txtBoxPH="Middle Name"                                      
+                              txtBoxValue={Student_Middle_Name}
+                              changeEvent={this.onChange}
+                              txtBoxName="Student_Middle_Name"
+                             />
+                            {errors.Student_Last_Name.length > 0 && 
+                               <span className='error'> {errors.Student_Last_Name} </span> }
+                            <CustomTextBox
+                              htFor="last Name" 
+                              style="col col-form-label"
+                              txtBoxLabel="Student Last Name"
+                              txtBoxType="text"
+                              txtBoxID="last name"
+                              txtBoxPH="Last Name"                                      
+                              txtBoxValue={Student_Last_Name}
+                              changeEvent={this.onChange}
+                              txtBoxName="Student_Last_Name"
+                             />
+                            
+                            {errors.Student_Email.length > 0 && 
+                               <span className='error'> {errors.Student_Email} </span> }
+                            <CustomTextBox
+                              htFor="email" 
+                              style="col col-form-label"
+                              txtBoxLabel="Student Email"
+                              txtBoxType="email"
+                              txtBoxID="email"
+                              txtBoxPH="Email"                                      
+                              txtBoxValue={Student_Email}
+                              changeEvent={this.onChange}
+                              txtBoxName="Student_Email"
+                             />
+                            
+                            {errors.Password.length > 0 && 
+                               <span className='error'> {errors.Password} </span> }
+                            <CustomTextBox
+                              htFor="Student Password" 
+                              style="col col-form-label"
+                              txtBoxLabel="Student Password"
+                              txtBoxType="text"
+                              txtBoxID="Student Password"
+                              txtBoxPH="Password"                                      
+                              txtBoxValue={Password}
+                              changeEvent={this.onChange}
+                              txtBoxName="Password"
+                             />
+                            
+                            {errors.Student_Mobile.length > 0 && 
+                               <span className='error'> {errors.Student_Mobile} </span> }
+                            <CustomTextBox
+                              htFor="Mobile" 
+                              style="col col-form-label"
+                              txtBoxLabel="Student Mobile"
+                              txtBoxType="text"
+                              txtBoxID="Mobile"
+                              txtBoxPH="Mobile" 
+                              txtBoxPattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                              txtBoxValue={Student_Mobile}
+                              changeEvent={this.onChange}
+                              txtBoxName="Student_Mobile"
+                             />
+
+                            {errors.Emergency_Contact_Person1.length > 0 && 
+                               <span className='error'> {errors.Emergency_Contact_Person1} </span> }
+                            <CustomTextBox
+                              htFor="person1" 
+                              style="col col-form-label"
+                              txtBoxLabel="Emergency Contact Person1"
+                              txtBoxType="text"
+                              txtBoxID="person1"
+                              txtBoxPH="Contact Person1"                                      
+                              txtBoxValue={Emergency_Contact_Person1}
+                              changeEvent={this.onChange}
+                              txtBoxName="Emergency_Contact_Person1"
+                             />
+                            {errors.Emergency_Mobile1.length > 0 && 
+                               <span className='error'> {errors.Emergency_Mobile1} </span> }
+                            <CustomTextBox
+                              htFor="mobile1" 
+                              style="col col-form-label"
+                              txtBoxLabel="Emergency Mobile1"
+                              txtBoxType="text"
+                              txtBoxID="mobile1"
+                              txtBoxPH="Emergency Mobile1"
+                              txtBoxPattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                              txtBoxValue={Emergency_Mobile1}
+                              changeEvent={this.onChange}
+                              txtBoxName="Emergency_Mobile1"
+                             />
+
+                            {errors.Relationship_1.length > 0 && 
+                               <span className='error'> {errors.Relationship_1} </span> }
+                            <Form.Group as={Row}>
+                                <Form.Label htmlFor="relationship" className="col col-form-label">Relationship 1</Form.Label>
+                                <Col>
+                                <Form.Control as="select" custom className="selectStyle" id="relationship" name="Relationship_1" onChange={this.onChange} required>
+                                        <option value="Relationship_1"selected disabled>relationship 1</option>
+                                        <option value="father1">father</option>
+                                        <option value="mother">mother</option>
+                                        <option value="relative ">relative </option>
+                                        <option value="friend ">friend</option>
+                                    </Form.Control>
+                                </Col>
+                            </Form.Group>
+                            
+                            {errors.Emergency_Contact_Person2.length > 0 && 
+                               <span className='error'> {errors.Emergency_Contact_Person2} </span> }
+                            <CustomTextBox
+                              htFor="person2" 
+                              style="col col-form-label"
+                              txtBoxLabel="Emergency Contact Person2"
+                              txtBoxType="text"
+                              txtBoxID="person2"
+                              txtBoxPH="contact"                                      
+                              txtBoxValue={Emergency_Contact_Person2}
+                              changeEvent={this.onChange}
+                              txtBoxName="Emergency_Contact_Person2"
+                             />
+                            
+                            {errors.Emergency_Mobile2.length > 0 && 
+                               <span className='error'> {errors.Emergency_Mobile2} </span> }
+                            <CustomTextBox
+                              htFor="mobile2" 
+                              style="col col-form-label"
+                              txtBoxLabel="Emergency Mobile2"
+                              txtBoxType="text"
+                              txtBoxID="mobile2"
+                              txtBoxPH="Contact"
+                              txtBoxPattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                              txtBoxValue={Emergency_Mobile2}
+                              changeEvent={this.onChange}
+                              txtBoxName="Emergency_Mobile2"
+                             />
+
+                              {errors.Relationship_2.length > 0 && 
+                               <span className='error'> {errors.Relationship_2} </span> }
+                            <Form.Group as={Row}>
+                                <Form.Label htmlFor="relationship" className="col col-form-label">Relationship 2</Form.Label>
+                                <Col>
+                                    <Form.Control as="select" custom className="selectStyle" id="relationship" name="Relationship_2" required defaultValue={'DEFAULT'} value={Relationship_2} onChange={this.onChange} >
+                                        <option value="DEFAULT" selected disabled>Relationship 2</option>
+                                        <option value="father1">father</option>
+                                        <option value="mother">mother</option>
+                                        <option value="relative ">relative </option>
+                                        <option value="friend ">friend</option>
+                                    </Form.Control>
+                                </Col>
+                            </Form.Group>
+                        </Col>
+                        <Col sm={12} lg={4} >
+                           
+                             {errors.Student_Address.length > 0 && 
+                               <span className='error'> {errors.Student_Address} </span> }
+                            <CustomTextBox
+                              htFor="Student_Address" 
+                              style="col col-form-label"
+                              txtBoxLabel="Student Address"
+                              txtBoxType="text"
+                              txtBoxID="Student_Address"
+                              txtBoxPH="Student Address"                                      
+                              txtBoxValue={Student_Address}
+                              changeEvent={this.onChange}
+                              txtBoxName="Student_Address"
+                             />
+                            
+                            {errors.City.length > 0 && 
+                               <span className='error'> {errors.City} </span> }
+                            <CustomTextBox
+                              htFor="city" 
+                              style="col col-form-label"
+                              txtBoxLabel="city"
+                              txtBoxType="text"
+                              txtBoxID="city"
+                              txtBoxPH="City"                                      
+                              txtBoxValue={City}
+                              changeEvent={this.onChange}
+                              txtBoxName="City"
+                             />
+                            
+                            {errors.State.length > 0 && 
+                               <span className='error'> {errors.this.State} </span> }
+                            <CustomTextBox
+                              htFor="state" 
+                              style="col col-form-label"
+                              txtBoxLabel="State"
+                              txtBoxType="text"
+                              txtBoxID="state"
+                              txtBoxPH="State"                                      
+                              txtBoxValue={State}
+                              changeEvent={this.onChange}
+                              txtBoxName="State"
+                             />
+                             {errors.Zip_Code.length > 0 && 
+                               <span className='error'> {errors.Zip_Code} </span> }                    
+                            <CustomTextBox
+                              htFor="zip code" 
+                              style="col col-form-label"
+                              txtBoxLabel="Zip code"
+                              txtBoxType="number"
+                              txtBoxID="zip code"
+                              txtBoxPH="Zip code"                                      
+                              txtBoxValue={Zip_Code}
+                              changeEvent={this.onChange}
+                              txtBoxName="Zip_Code"
+                             />
+                            {errors.Country.length > 0 && 
+                               <span className='error'> {errors.Country} </span> }
+                            <CustomTextBox
+                              htFor="country" 
+                              style="col col-form-label"
+                              txtBoxLabel="Country"
+                              txtBoxType="text"
+                              txtBoxID="country"
+                              txtBoxPH="Country"                                      
+                              txtBoxValue={Country}
+                              changeEvent={this.onChange}
+                              txtBoxName="Country"
+                             />
+                            <Form.Group as={Row}>
+                                <Form.Label htmlFor="gate student" className="col col-form-label"></Form.Label>
+                                <Col>
+                                    <Form.Check type="checkbox" className="form-check-input"  id="gate student"
+                                         label="gate student" value="gate_student" name="gate_student" onChange={this.onChange}
+                                         />
+                                </Col>
+                            </Form.Group>
+                            
+                            
+                            <CustomTextBox
+                              htFor="school attending" 
+                              style="col col-form-label"
+                              txtBoxLabel="Current School Attending"
+                              txtBoxType="text"
+                              txtBoxID="school attending"
+                              txtBoxPH="Current School"                                      
+                              txtBoxValue={Current_School_Attending}
+                              changeEvent={this.onChange}
+                              txtBoxName="Current_School_Attending"
+                             />
+                            <Form.Group as={Row}>
+                                <Form.Label htmlFor="schools" className="col col-form-label"></Form.Label>
+                                <Col>
+                                    <Form.Check type="checkbox" className="form-check-input"  id="schools"
+                                         label="academy/magnet/cbse schools"
+                                         value="academy/magnet/cbse schools" 
+                                         onChange={this.onChange} 
+                                         name="academy_magnet_cbse"
+                                         required
+                                        />
+                                 </Col>
+                            </Form.Group>
+
+                           
+                            <CustomTextBox
+                              htFor="district" 
+                              style="col col-form-label"
+                              txtBoxLabel="School District"
+                              txtBoxType="text"
+                              txtBoxID="district"
+                              txtBoxPH="School District"                                      
+                              txtBoxValue={School_District}
+                              changeEvent={this.onChange}
+                              txtBoxName="School_District"
+                             />
+                            
+                            <CustomTextBox
+                              htFor="level" 
+                              style="col col-form-label"
+                              txtBoxLabel="Grade Level"
+                              txtBoxType="text"
+                              txtBoxID="level"
+                              txtBoxPH=""                                      
+                              txtBoxValue={Grade_Level}
+                              changeEvent={this.onChange}
+                              txtBoxName="Grade_Level"
+                             />
+                            
+                            <CustomTextBox
+                              htFor="GAP" 
+                              style="col col-form-label"
+                              txtBoxLabel="GAP"
+                              txtBoxType="text"
+                              txtBoxID="GAP"
+                              txtBoxPH=""                                      
+                              txtBoxValue={GAP}
+                              changeEvent={this.onChange}
+                              txtBoxName="GAP"
+                             />
+                            
+                            <CustomTextBox
+                              htFor="additional comments" 
+                              style="col col-form-label"
+                              txtBoxLabel="Additional comments"
+                              txtBoxType="text"
+                              txtBoxID="additional comments"
+                              txtBoxPH=""                                      
+                              txtBoxValue={Additional_Comments}
+                              changeEvent={this.onChange}
+                              txtBoxName="Additional_Comments"
+                             />
+                        </Col>
+                        <Col lg={4} sm={12}>
+                            <Form.Group as={Row}>
+                                <Form.Label htmlFor="program" className="col col-form-label">Enroll Program</Form.Label>
+                                <Col>
+                                    <Form.Check type="checkbox" className="form-check-input" name="" id="" onChange={this.onChange} name="Enroll_Program"
+                                        value="ACT" label="ACT" /><br />
+                                    <Form.Check type="checkbox" className="form-check-input" name="" id="" onChange={this.onChange} name="Enroll_Program"
+                                        value="SAT" label="SAT" /><br />
+                                    <Form.Check type="checkbox" className="form-check-input" id=""  label="private lessons" name="Enroll_Program" value="private lessons" onChange={this.onChange}
+                                    /><br/>
+                                </Col>
+                            </Form.Group>
+                            <Form.Group as={Row}>
+                                <Form.Label htmlFor="inputtext3" className="col col-form-label">Aign Teachers</Form.Label>
+                                <Col>
+                                <Form.Control as="select" custom className="selectStyle" id="Select Teacher Student" name="Assign_Teachers"  onChange={this.onChange} required>
+                                    <option value="" disabled selected>select client</option>
+                                        { this.state.teachers.map(teachers =>
+                                             <option key={teachers.id} value={Teacher => teachers.First_Name}>{teachers.First_Name}</option>)}    
+                                    </Form.Control>
+                                </Col>
+                            </Form.Group>
+                            <Form.Group as={Row}>
+                                <Form.Label htmlFor="continuing student" className="col col-form-label">Continuing Student</Form.Label>
+                                <Col>
+                                    <Form.Control as="select" custom className="selectStyle" id="continuing student" name="Continuing_Student" value={Continuing_Student} onChange={this.onChange} required>
+                                        <option selected disabled>continuing student</option>
+                                        <option value="yes">yes</option>
+                                        <option value="no">no</option>
+                                    </Form.Control>
+                                </Col>
+                            </Form.Group>
+                            <Form.Group as={Row}>
+                                <Form.Label htmlFor="applied code" className="col col-form-label">Discount Applied Code</Form.Label>
+                                <Col>
+                                    <Form.Control as="select" custom className="selectStyle" id="applied code" name="Discount_Applied_Code" value={Discount_Applied_Code} onChange={this.onChange} required>
+                                        <option selected>D0 - None</option>
+                                        <option value="contin">D1 - contin</option>
+                                        <option value="vetera">D2 - vetera</option>
+                                        <option value="physic">D3 - physic</option>
+                                        <option value="rural">D4 - rural</option>
+                                        <option value="other">D5 - other</option>
+                                    </Form.Control>
+                                </Col>
+                            </Form.Group>
+                            <Form.Group as={Row}>
+                                <Form.Label htmlFor="program" className="col col-form-label">Exit Program</Form.Label>
+                                <Col>
+                                    <Form.Check type="checkbox"  name="" id=""  value="ACT" label="ACT" name="Exit_Program" onChange={this.onChange} />
+                                    <Form.Check type="checkbox"  name="" id="" value="SAT" label="SAT" name="Exit_Program" onChange={this.onChange} />
+                                    <Form.Check  type="checkbox"  name="" id="" value="private lessons" label="private lessons" name="Exit_Program"  onChange={this.onChange} />
+                                </Col>
+                            </Form.Group>
+                           
+                            <CustomTextBox
+                              htFor="comments" 
+                              style="col col-form-label"
+                              txtBoxLabel="Exit Comments"
+                              txtBoxType="text"
+                              txtBoxID="comments"
+                              txtBoxPH=""                                      
+                              txtBoxValue={Exit_Comments}
+                              changeEvent={this.onChange}
+                              txtBoxName="Exit_Comments"
+                             />
+                        </Col>
+                    </Row>
+                            <Row className="row justify-content-md-center">            
+                                        <CustomButton  style="col btnBlue" BtnTxt="Add Student" ClickEvent={this.onSubmit} />
+                                        <CustomButton  style="col btnBlue" BtnTxt="Update Student" ClickEvent={this.onUpdate}/>    
+                                        <CustomButton  style="col btnBlue" BtnTxt="Delete Student" ClickEvent={this.onDelete}/>
+                                        <CustomButton  style="col btnBlue" BtnTxt="Cancel" />                                       
+                            </Row>
+                </Card.Body>
+            </Form>
+            </Card>        
+    </Container>
+            </>
+        )
+    }
+}
+
+export default ManageStudents;
