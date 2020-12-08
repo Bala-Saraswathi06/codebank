@@ -1,0 +1,1306 @@
+import React,{Component} from 'react';
+import {
+    Container,
+    Card,
+    Form,
+    Row,
+    Col,
+    Button
+} from 'react-bootstrap';
+import axios from 'axios';
+import swal from 'sweetalert';
+import $ from 'jquery'
+
+import CustomButton from '../../../components/Button/Button';
+import CustomTextBox from '../../../components/TextBox/TextBox';
+import { pathOr, isEmpty, trim, lensPath, set, remove ,equals,head,filter,data} from 'ramda';
+import { postcodeValidator, postcodeValidatorExistsForCountry } from 'postcode-validator';
+import Footer from '../../../components/Footer'
+const validNameRegex = RegExp(
+  /^[a-z\s]+$/i
+);
+const validEmailRegex = RegExp(
+  /^[a-z][\w-\.]+@([a-z]{2,8})\.([a-z]{2,4})(\.[a-z]{2,4})?$/
+);
+
+const validMobileRegex = RegExp(
+  /^[0-9]{3}\s[0-9]{3}\s[0-9]{4}$/
+);
+
+const validZipcodeRegex = RegExp(
+  /^[0-9]{5,6}$/
+);
+
+const validTextRegex = RegExp(
+  /^.+$/
+);
+const validWordRegex = RegExp(
+  /^[a-z\s\t]{3,}$/i
+);
+const validateForm = errors => {
+  let valid = true;
+  Object.values(errors).forEach(val => val.length > 0 && (valid= false));
+  return valid;
+}
+
+class  ManageTeachers  extends Component{
+    constructor() {
+        super();
+    
+        this.state = {
+            ClientId: null,
+            Select_Teacher: '',
+            Prefix: '',
+            First_Name: '',
+            Middle_Name: '',
+            Last_Name: '',
+            Email: '',
+            Mobile: '',
+            Emergency_Contact_Person1: '',
+            Emergency_Mobile1: '',
+            Relationship_1: '',
+            Emergency_Contact_Person2:'',
+            Emergency_Mobile2:'' ,
+            Relationship_2: '',
+            Address: '',
+            City:'' ,
+            State:'' ,
+            Zip_Code: '',
+            Country: '',
+            School_District: '',
+            Currently_Teaching: '',
+            Ap_Classess: '',
+            Notes_Comments: '',
+            High_Degree_Completed:'',
+            Grade_Level: '',
+            Speciality:'',
+            teachers:[],
+            undergraduate: '',
+            master: '',
+            doctorate: '',
+            credentials: '', 
+            freshman:'',
+            sophomore:'',
+            junior:'',
+            senior:'',
+            college_level:'',
+            english:'',
+            math:'',
+            science_all:'',
+            physics:'',
+            chemistry:'',
+            biolozy_zoology:'',
+            lesson_1 :'',
+            group_lesson:'',
+
+            errors: {
+              First_Name: '',
+            Middle_Name: '',
+            Last_Name: '',
+            Email: '',
+            Mobile: '',
+            Emergency_Contact_Person1: '',
+            Emergency_Mobile1: '',
+            Emergency_Contact_Person2:'',
+            Emergency_Mobile2:'' ,
+            Address: '',
+            City:'' ,
+            State:'' ,
+            Zip_Code: '',
+            Country: '',
+            School_District: '',
+            Ap_Classess: '',
+            Notes_Comments: '',
+            }
+      }
+    }
+    
+    componentDidMount() {
+       
+        axios.get(`http://localhost:8000/api/teacher/`)
+        .then(res => {
+          const teachers = res.data;
+          this.setState({ teachers });
+          console.log(teachers);
+        })
+    }
+    
+    getTeachersName = (teachers,teacher_name)=>{
+      const getClientDeatilsWithName = (data) => {
+    
+        return equals(
+          pathOr(
+            {},
+            [
+              'First_Name'
+            ],
+            data
+          ),
+          teacher_name
+        )
+            
+      }
+      return filter(getClientDeatilsWithName,teachers)
+    }
+   
+  onChange = (e) => {
+    e.preventDefault();
+      const { name,value } = e.target;
+      let errors = this.state.errors;
+      let degree=this.state.High_Degree_Completed
+
+      switch (name){
+
+        case 'First_Name':
+          // errors.First_Name =
+          //   validNameRegex.test(value)
+          //   ? ''
+          //   : 'Name is not valid';
+          $('#First_Name').focusout(function(){
+            if(validNameRegex.test(value)){ 
+              $('#First_Name').css('border', '2px solid green')
+              $('#fnamesuccess').css('display','block')
+              $('#fnamefail').css('display','none')
+              $('#fnameerror').css('display','none')
+            }
+            else{
+              $('#First_Name').css('border', '2px solid red')
+              $('#fnamefail').css('display','block')
+              $('#fnamesuccess').css('display','none')
+              $('#fnameerror').css('display','block')
+            }
+        })
+          break;
+        case 'Middle_Name':
+          // errors.Middle_Name =
+          //   // validNameRegex.test(value)
+          //   // ? ''
+          //   // : 'Name is not valid';
+            $('#MiddleName').focusout(function(){
+              if(validNameRegex.test(value)){ 
+                $('#MiddleName').css('border', '2px solid green')
+                $('#mdnamesuccess').css('display','block')
+                $('#mdnamefail').css('display','none')
+                $('#mdnameerror').css('display','none')
+              }
+              else{
+                $('#MiddleName').css('border', '2px solid red')
+                $('#mdnamefail').css('display','block')
+                $('#mdnamesuccess').css('display','none')
+                $('#mdnameerror').css('display','block')
+              }
+          })
+          break;
+        case 'Last_Name':
+          // errors.Student_Last_Name =
+          // validNameRegex.test(value)
+          //   ? ''
+          //   : 'Name is not valid';
+          $('#lastName').focusout(function(){
+            if(validNameRegex.test(value)){ 
+              $('#lastName').css('border', '2px solid green')
+              $('#lnamesuccess').css('display','block')
+              $('#lnamefail').css('display','none')
+              $('#lnameerror').css('display','none')
+            }
+            else{
+              $('#lastName').css('border', '2px solid red')
+              $('#lnamefail').css('display','block')
+              $('#lnamesuccess').css('display','none')
+              $('#lnameerror').css('display','block')
+            }
+        })
+          break;
+        case 'Email':
+          // errors.Student_Email =
+          //   validEmailRegex.test(value)
+          //   ? ''
+          //   : 'Email is not valid';
+          $('#email').focusout(function(){
+            if( validEmailRegex.test(value)){ 
+              $('#email').css('border', '2px solid green')
+              $('#emailsuccess').css('display','block')
+              $('#emailfail').css('display','none')
+              $('#emailerror').css('display','none')
+            }
+            else{
+              $('#email').css('border', '2px solid red')
+              $('#emailfail').css('display','block')
+              $('#emailsuccess').css('display','none')
+              $('#emailerror').css('display','block')
+            }
+        })
+          break;
+        case 'Mobile':
+            // errors.Mobile =
+            //   validMobileRegex.test(value)
+            //   ? ''
+            //   : 'pattern xxx-xxx-xxxx';
+            $('#mobile').focusout(function(){
+              if(validMobileRegex.test(value)){ 
+                $('#mobile').css('border', '2px solid green')
+                $('#mobsuccess').css('display','block')
+                $('#mobfail').css('display','none')
+                $('#moberror').css('display','none')
+              }
+              else{
+                $('#mobile').css('border', '2px solid red')
+                $('#mobfail').css('display','block')
+                $('#mobsuccess').css('display','none')
+                $('#moberror').css('display','block')
+              }
+          })
+          break;
+          case 'Emergency_Contact_Person1':
+            // errors.Emergency_Contact_Person1 =
+            //   validNameRegex.test(value)
+            //   ? ''
+            //   : 'Name is not valid';
+            $('#person1').focusout(function(){
+              if(validNameRegex.test(value)){ 
+                $('#person1').css('border', '2px solid green')
+                $('#persuccess').css('display','block')
+                $('#perfail').css('display','none')
+                $('#pererror').css('display','none')
+              }
+              else{
+                $('#person1').css('border', '2px solid red')
+                $('#perfail').css('display','block')
+                $('#persuccess').css('display','none')
+                $('#pererror').css('display','block')
+              }
+          })
+            break;
+          case 'Emergency_Mobile1':
+          // errors.Emergency_Mobile1 =
+          //   validMobileRegex.test(value)
+          //   ? ''
+          //   : 'pattern xxx-xxx-xxxx ';
+          $('#mobile1').focusout(function(){
+            if(validMobileRegex.test(value)){ 
+              $('#mobile1').css('border', '2px solid green')
+              $('#m1success').css('display','block')
+              $('#m1fail').css('display','none')
+              $('#m1error').css('display','none')
+            }
+            else{
+              $('#mobile1').css('border', '2px solid red')
+              $('#m1fail').css('display','block')
+              $('#m1success').css('display','none')
+              $('#m1error').css('display','block')
+            }
+        })
+          break;
+          
+          case 'Emergency_Contact_Person2':
+          // errors.Emergency_Contact_Person2 =
+          //   validNameRegex.test(value)
+          //   ? ''
+          //   : 'Name is not valid';
+          $('#person2').focusout(function(){
+            if(validNameRegex.test(value)){ 
+              $('#person2').css('border', '2px solid green')
+              $('#per2success').css('display','block')
+              $('#per2fail').css('display','none')
+              $('#per2error').css('display','none')
+            }
+            else{
+              $('#person2').css('border', '2px solid red')
+              $('#per2fail').css('display','block')
+              $('#per2success').css('display','none')
+              $('#per2error').css('display','block')
+            }
+        })
+          break;
+          case 'Emergency_Mobile2':
+          // errors.Emergency_Mobile2 =
+          //   validMobileRegex.test(value)
+          //   ? ''
+          //   : 'pattern xxx-xxx-xxxx';
+          $('#mobile2').focusout(function(){
+            if(validMobileRegex.test(value)){ 
+              $('#mobile2').css('border', '2px solid green')
+              $('#m2success').css('display','block')
+              $('#m2fail').css('display','none')
+              $('#m2error').css('display','none')
+            }
+            else{
+              $('#mobile2').css('border', '2px solid red')
+              $('#m2fail').css('display','block')
+              $('#m2success').css('display','none')
+              $('#m2error').css('display','block')
+            }
+        })
+          break;
+          
+          case 'Address':
+          // errors.Address =
+          //   validTextRegex.test(value)
+          //   ? ''
+          //   : ' Address is not valid';
+          $('#address').focusout(function(){
+            if(validTextRegex.test(value)){ 
+              $('#address').css('border', '2px solid green')
+              $('#addsuccess').css('display','block')
+              $('#addfail').css('display','none')
+              $('#adderror').css('display','none')
+            }
+            else{
+              $('#address').css('border', '2px solid red')
+              $('#addfail').css('display','block')
+              $('#addsuccess').css('display','none')
+              $('#adderror').css('display','block')
+            }
+        })
+          break;
+              $('#addsuccess').css('display','none')
+              $('#addsuccess').css('display','none')
+              case 'City':
+          // errors.City =
+          //   validWordRegex.test(value)
+          //   ? ''
+          //   : 'City is not valid ';
+          $('#city').focusout(function(){
+            if(validWordRegex.test(value)){ 
+              $('#city').css('border', '2px solid green')
+              $('#citysuccess').css('display','block')
+              $('#cityfail').css('display','none')
+              $('#cityerror').css('display','none')
+            }
+            else{
+              $('#city').css('border', '2px solid red')
+              $('#cityfail').css('display','block')
+              $('#citysuccess').css('display','none')
+              $('#cityerror').css('display','block')
+            }
+        })
+          break;
+          case 'State':
+          // errors.State =
+          //   validWordRegex.test(value)
+          //   ? ''
+          //   : 'State is not valid';
+          $('#state').focusout(function(){
+            if(validWordRegex.test(value)){ 
+              $('#state').css('border', '2px solid green')
+              $('#statesuccess').css('display','block')
+              $('#statefail').css('display','none')
+              $('#stateerror').css('display','none')
+            }
+            else{
+              $('#state').css('border', '2px solid red')
+              $('#statefail').css('display','block')
+              $('#statesuccess').css('display','none')
+              $('#stateerror').css('display','block')
+            }
+        })
+          break;
+          case 'Zip_Code':
+          // errors.Zip_Code =
+          //   postcodeValidator((value), 'US')
+          //   ? ''
+          //   : 'Zip_code is not valid';
+          $('#zipcode').focusout(function(){
+            if( postcodeValidator((value), 'US')){ 
+              $('#zipcode').css('border', '2px solid green')
+              $('#zcodesuccess').css('display','block')
+              $('#zcodefail').css('display','none')
+              $('#zcodeerror').css('display','none')
+            }
+            else{
+              $('#zipcode').css('border', '2px solid red')
+              $('#zcodefail').css('display','block')
+              $('#zcodesuccess').css('display','none')
+              $('#zcodeerror').css('display','block')
+            }
+        })
+          break;
+          
+          case 'Country':
+          // errors.Country=
+          //   validWordRegex.test(value)
+          //   ? ''
+          //   : 'country is not valid';
+          //   : 'country is not valid';
+          $('#country').focusout(function(){
+            if(validWordRegex.test(value)){ 
+              $('#country').css('border', '2px solid green')
+              $('#countrysuccess').css('display','block')
+              $('#countryfail').css('display','none')
+              $('#countryerror').css('display','none')
+            }
+            else{
+              $('#country').css('border', '2px solid red')
+              $('#countryfail').css('display','block')
+              $('#countrysuccess').css('display','none')
+              $('#countryerror').css('display','block')
+            }
+        })
+          break;
+          case 'School_District':
+          // errors.School_District=
+          //   validWordRegex.test(value)
+          //   ? ''
+          //   : 'School Distric is not valid';
+          $('#schooldistrict').focusout(function(){
+            if(validNameRegex.test(value)){ 
+              $('#schooldistrict').css('border', '2px solid green')
+              $('#distsuccess').css('display','block')
+              $('#distfail').css('display','none')
+              $('#disterror').css('display','none')
+            }
+            else{
+              $('#schooldistrict').css('border', '2px solid red')
+              $('#distfail').css('display','block')
+              $('#distsuccess').css('display','none')
+              $('#disterror').css('display','block')
+            }
+        })
+          break;
+          case 'Ap_Classess':
+          // errors.Ap_Classess=
+          //   validWordRegex.test(value)
+          //   ? ''
+          //   : 'Grade is not valid';
+          $('#apclassess').focusout(function(){
+            if(validNameRegex.test(value)){ 
+              $('#apclassess').css('border', '2px solid green')
+              $('#apsuccess').css('display','block')
+              $('#apfail').css('display','none')
+              $('#aperror').css('display','none')
+            }
+            else{
+              $('#apclassess').css('border', '2px solid red')
+              $('#apfail').css('display','block')
+              $('#apsuccess').css('display','none')
+              $('#aperror').css('display','block')
+            }
+        })
+
+          break;
+          case 'Notes_Comments':
+          // errors.Notes_Comments=
+          //   validTextRegex.test(value)
+          //   ? ''
+          //   : 'command is not valid';
+          $('#notes').focusout(function(){
+            if(validNameRegex.test(value)){ 
+              $('#notes').css('border', '2px solid green')
+              $('#notessuccess').css('display','block')
+              $('#notesfail').css('display','none')
+              $('#noteserror').css('display','none')
+            }
+            else{
+              $('#notes').css('border', '2px solid red')
+              $('#notesfail').css('display','block')
+              $('#notessuccess').css('display','none')
+              $('#noteserror').css('display','block')
+            }
+        })
+          break;
+          // case 'High_Degree_Completed':
+          //   if (value=="undergraduate"){
+          //    degree.undergraduate="true"
+          //   }
+           
+          //   break;
+          
+        default:
+          break;
+     
+      }
+      // switch(value){
+      //   case 'undergratuate':
+      //     degree.undergraduate="true"
+      //     break;
+      //   case 'master':
+      //     degree.master="true"
+      //     break;
+      //   case 'doctorate':
+      //     degree.doctorate="true"
+      //     break;
+      //   case 'credentials':
+      //     degree.credentials='true'
+      //     break;
+      //   default:
+      //     break;
+      // }
+
+      if(equals(e.target.name,"Select_Teacher")){
+        
+       const filterData =  head(this.getTeachersName(this.state.teachers,e.target.value))
+        console.log(filterData)
+          this.setState({
+                          ClientId: pathOr("",["id"],filterData),
+                          Select_Teacher: pathOr("",["Select_Teacher"],filterData),
+                          Prefix: pathOr("",["Prefix"],filterData),
+                          First_Name: pathOr("",["First_Name"],filterData),
+                          Middle_Name: pathOr("",["Middle_Name"],filterData),
+                          Last_Name: pathOr("",["Last_Name"],filterData),
+                          Email: pathOr("",["Email"],filterData),
+                          Mobile: pathOr("",["Mobile"],filterData),
+                          Emergency_Contact_Person1: pathOr("",["Emergency_Contact_Person1"],filterData),
+                          Emergency_Mobile1: pathOr("",["Emergency_Mobile1"],filterData),
+                          Relationship_1: pathOr("",["Relationship_1"],filterData),
+                          Emergency_Contact_Person2:pathOr("",["Emergency_Contact_Person2"],filterData),
+                          Emergency_Mobile2:pathOr("",["Emergency_Mobile2"],filterData),
+                          Relationship_2: pathOr("",["Relationship_2"],filterData),
+                          Address: pathOr("",["Address"],filterData),
+                          City:pathOr("",["City"],filterData),
+                          State:pathOr("",["State"],filterData),
+                          Zip_Code: pathOr("",["Zip_Code"],filterData),
+                          Country: pathOr("",["Country"],filterData),
+                          School_District: pathOr("",["School_District"],filterData),
+                          Currently_Teaching: pathOr("",["Currently_Teaching"],filterData),
+                          Ap_Classess: pathOr("",["Ap_Classess"],filterData),
+                          Notes_Comments: pathOr("",["Notes_Comments"],filterData),
+                          High_Degree_Completed: pathOr("",["High_Degree_Completed"],filterData),
+                          Grade_Level: pathOr("",["Grade_Level"],filterData),
+                          Speciality:pathOr("",["Speciality"],filterData)                         
+                          
+          })
+          return
+      }
+      this.setState({ [e.target.name]: e.target.value });
+      console.log(e.target.value,'value')
+  }
+   
+  onChecked = (e) =>{
+    this.setState({
+      
+    })
+  }
+
+    onSubmit = (e) => {
+        e.preventDefault();
+        // get our form data out of state
+        const { Select_Teacher,Prefix,First_Name,Middle_Name,Last_Name,Email,Mobile,Emergency_Contact_Person1,Emergency_Mobile1,Relationship_1,
+                Emergency_Contact_Person2,Emergency_Mobile2,Relationship_2,Address,City,State,Zip_Code,Country,School_District,Currently_Teaching,Ap_Classess,
+                Notes_Comments,High_Degree_Completed,Grade_Level,Speciality            
+            } = this.state;
+            if (Prefix === '' ||
+              First_Name === '' ||
+              Middle_Name === '' ||
+              Last_Name === '' ||
+              Email === '' ||
+              Mobile === '' ||
+              Emergency_Contact_Person1 === '' ||
+              Emergency_Mobile1 === '' ||
+              Relationship_1 === '' ||
+              Emergency_Contact_Person2 === '' ||
+              Emergency_Mobile2 === '' ||
+              Relationship_2 === '' ||
+              Address === '' ||
+              City === '' ||
+              State === '' ||
+              Zip_Code === '' ||
+              Country === '' ||
+              School_District === '' ||
+              Currently_Teaching === '' ||
+              Ap_Classess === '') {
+              alert("Please Fillout All the Pages")
+            }
+            else{
+              axios.post('http://localhost:8000/api/teacher/', 
+                    {               Select_Teacher,Prefix,First_Name,Middle_Name,Last_Name,Email,Mobile,Emergency_Contact_Person1,Emergency_Mobile1,Relationship_1,
+                                    Emergency_Contact_Person2,Emergency_Mobile2,Relationship_2,Address,City,State,Zip_Code,Country,School_District,Currently_Teaching,Ap_Classess,
+                                    Notes_Comments,High_Degree_Completed,Grade_Level,Speciality            
+                    })                   
+            .then(function (response) {
+                  //access the results here....           
+                swal("success!", "Teacher added", "success").then(setInterval(function(){window.location.reload();},1500));// alert
+                console.log(response);// log
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
+            }
+            
+        
+      }
+      onUpdate =() =>{
+        const { 
+            ClientId,
+            Select_Teacher,
+            Prefix,
+            First_Name,
+            Middle_Name,
+            Last_Name,
+            Email,
+            Mobile,
+            Emergency_Contact_Person1,
+            Emergency_Mobile1,
+            Relationship_1,
+            Emergency_Contact_Person2,
+            Emergency_Mobile2 ,
+            Relationship_2,
+            Address,
+            City ,
+            State ,
+            Zip_Code,
+            Country,
+            School_District,
+            Currently_Teaching,
+            Ap_Classess,
+            Notes_Comments,
+            High_Degree_Completed,
+            Grade_Level,
+            Speciality,       
+          } = this.state;
+
+        axios.put('http://localhost:8000/api/teacher/'  + ClientId + '/', {
+            Select_Teacher,
+            Prefix,
+            First_Name,
+            Middle_Name,
+            Last_Name,
+            Email,
+            Mobile,
+            Emergency_Contact_Person1,
+            Emergency_Mobile1,
+            Relationship_1,
+            Emergency_Contact_Person2,
+            Emergency_Mobile2 ,
+            Relationship_2,
+            Address,
+            City ,
+            State ,
+            Zip_Code,
+            Country,
+            School_District,
+            Currently_Teaching,
+            Ap_Classess,
+            Notes_Comments,
+            High_Degree_Completed,
+            Grade_Level,
+            Speciality,             
+        })  
+        .then(function (response) {
+              //access the results here....           
+            swal("success!", "Teacher Updated", "success").then(setInterval(function(){window.location.reload();},1500));// alert
+            console.log(response);// log
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      }
+      onDelete = () =>{
+        const {ClientId} = this.state;
+            swal({
+                title: "Are you sure?",
+                text: "Once deleted, you will not be able to recover this Record file!",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+              })
+              .then((willDelete) => {
+                if (willDelete) {
+                    axios.delete('http://localhost:8000/api/teacher/'  + ClientId + '/') 
+                  swal("Teacher Record Deleted!", {
+                    icon: "success",
+                  }).then(setInterval(function(){window.location.reload();},1500));
+                } else {
+                  swal("Teacher Record is safe!");
+                }
+              })
+              .catch(function (error) {
+                console.log(error);
+               })
+            }
+            onCancel = () =>{
+              this.setState({
+                ClientId: null,
+                Select_Teacher: '',
+                Prefix: '',
+                First_Name: '',
+                Middle_Name: '',
+                Last_Name: '',
+                Email: '',
+                Mobile: '',
+                Emergency_Contact_Person1: '',
+                Emergency_Mobile1: '',
+                Relationship_1: '',
+                Emergency_Contact_Person2:'',
+                Emergency_Mobile2:'' ,
+                Relationship_2: '',
+                Address: '',
+                City:'' ,
+                State:'' ,
+                Zip_Code: '',
+                Country: '',
+                School_District: '',
+                Currently_Teaching: '',
+                Ap_Classess: '',
+                Notes_Comments: '',
+                High_Degree_Completed: '',
+                Grade_Level: '',
+                Speciality:'',
+                teachers:[],
+                errors: {
+                First_Name: '',
+                Middle_Name: '',
+                Last_Name: '',
+                Email: '',
+                Mobile: '',
+                Emergency_Contact_Person1: '',
+                Emergency_Mobile1: '',
+                Emergency_Contact_Person2:'',
+                Emergency_Mobile2:'' ,
+                Address: '',
+                City:'' ,
+                State:'' ,
+                Zip_Code: '',
+                Country: '',
+                School_District: '',
+                Ap_Classess: '',
+                Notes_Comments: '',
+                }
+              })
+              axios.get(`http://localhost:8000/api/teacher/`)
+              .then(res => {
+                const teachers = res.data;
+                this.setState({ teachers });
+                console.log(teachers);
+              })
+              $('#First_Name').css('border', '2px solid #288df0')
+              $('#fnamesuccess').css('display','none')
+              $('#fnamefail').css('display','none')
+              $('#fnameerror').css('display','none')
+              $('#MiddleName').css('border', '2px solid  #288df0')
+              $('#mdnamesuccess').css('display','none')
+              $('#mdnamefail').css('display','none')
+              $('#mdnameerror').css('display','none')
+              $('#lastName').css('border', '2px solid  #288df0')
+              $('#lnamesuccess').css('display','none')
+              $('#lnamefail').css('display','none')
+              $('#lnameerror').css('display','none')
+              $('#email').css('border', '2px solid  #288df0')
+              $('#emailsuccess').css('display','none')
+              $('#emailfail').css('display','none')
+              $('#emailerror').css('display','none')
+              $('#mobile').css('border', '2px solid  #288df0')
+              $('#mobsuccess').css('display','none')
+              $('#mobfail').css('display','none')
+              $('#moberror').css('display','none')
+              $('#person1').css('border', '2px solid  #288df0')
+              $('#persuccess').css('display','none')
+              $('#perfail').css('display','none')
+              $('#pererror').css('display','none')
+              $('#mobile1').css('border', '2px solid  #288df0')
+              $('#m1success').css('display','none')
+              $('#m1fail').css('display','none')
+              $('#m1error').css('display','none')
+              $('#person2').css('border', '2px solid  #288df0')
+              $('#per2success').css('display','none')
+              $('#per2fail').css('display','none')
+              $('#per2error').css('display','none')
+              $('#mobile2').css('border', '2px solid  #288df0')
+              $('#m2success').css('display','none')
+              $('#m2fail').css('display','none')
+              $('#m2error').css('display','none')
+              $('#address').css('border', '2px solid  #288df0')
+              $('#addsuccess').css('display','none')
+              $('#addfail').css('display','none')
+              $('#adderror').css('display','none')
+              $('#city').css('border', '2px solid  #288df0')
+              $('#citysuccess').css('display','none')
+              $('#cityfail').css('display','none')
+              $('#cityerror').css('display','none')
+              $('#state').css('border', '2px solid  #288df0')
+              $('#statesuccess').css('display','none')
+              $('#statefail').css('display','none')
+              $('#stateerror').css('display','none')
+              $('#zipcode').css('border', '2px solid  #288df0')
+              $('#zcodesuccess').css('display','none')
+              $('#zcodefail').css('display','none')
+              $('#zcodeerror').css('display','none')
+              $('#country').css('border', '2px solid  #288df0')
+              $('#countrysuccess').css('display','none')
+              $('#countryfail').css('display','none')
+              $('#countryerror').css('display','none')
+              $('#schooldistrict').css('border', '2px solid  #288df0')
+              $('#distsuccess').css('display','none')
+              $('#distfail').css('display','none')
+              $('#disterror').css('display','none')
+              $('#apclassess').css('border', '2px solid  #288df0')
+              $('#apsuccess').css('display','none')
+              $('#apfail').css('display','none')
+              $('#aperror').css('display','none')
+              $('#notes').css('border', '2px solid  #288df0')
+              $('#notessuccess').css('display','none')
+              $('#notesfail').css('display','none')
+              $('#noteserror').css('display','none')
+            }
+    render(){
+        const { ClientId,Select_Teacher,Prefix,First_Name,Middle_Name,Last_Name,Email,Mobile,Emergency_Contact_Person1,Emergency_Mobile1,Relationship_1, Emergency_Contact_Person2,Emergency_Mobile2,Relationship_2,Address,City,State,Zip_Code,Country,School_District,Currently_Teaching,Ap_Classess, Notes_Comments,High_Degree_Completed,Grade_Level,Speciality,errors,undergraduate,
+        master,
+        doctorate,
+        credentials, 
+        freshman,
+        sophomore,
+        junior,
+        senior,
+        college_level,
+        english,
+        math,
+        science_all,
+        physics,
+        chemistry,
+        biolozy_zoology,
+        lesson_1,
+        group_lesson, } = this.state;
+        return(
+                <>
+                    
+    <Container  style={{marginTop: '50px'}}>       
+            <Card >
+                
+                <nav className="nav" style={{display:"flex"}}>
+                    <div className="headTitle"><p style={{marginLeft:"5%"}}>Administration - Teacher Profile</p></div>
+                    <div className="headTitle2"><p style={{marginLeft:"70%", marginTop:"10px"}}>Welcome, Admin!</p></div>
+                </nav>
+                <Form >
+                <Card.Body class="card-body">
+                    <Row class="row justify-content-center">
+                        <Col lg={4} sm={12}>
+                            <Form.Group as={Row}>
+                                <Form.Label htmlfor="Select_Teacher" class="col col-form-label">select teacher</Form.Label>
+                                <Col>
+                                    <Form.Control as="select" custom className="selectStyle" id="Select Teacher Student" name="Select_Teacher"  onChange={this.onChange} >
+                                    <option value="" >select Teacher</option>
+                                        { this.state.teachers.map(teachers =>
+                                             <option key={teachers.id} value={ teachers.First_Name}>{teachers.First_Name}</option>)}    
+                                    </Form.Control>
+                                   
+                                </Col>
+                            </Form.Group>
+                            <Form.Group as={Row}>
+                                <Form.Label htmlFor="Prefix" class="col col-form-label">prefix</Form.Label>
+                                <Col >
+                                      {ClientId !== null ? <Form.Control as="select" custom className="selectStyle" id="Prefix" name="Prefix"  onChange={this.onChange} required>
+                                        <option value={Prefix} disabled selected>{Prefix}</option>
+                                       <option value="Dr.">Dr.</option>
+                                        <option value="Mr.">Mr.</option>
+                                        <option value="Mrs.">Mrs.</option>
+                                        <option value="Ms">Ms</option>
+                                    </Form.Control>
+                                    :
+                                    <Form.Control as="select" custom className="selectStyle" id="Prefix" name="Prefix"  onChange={this.onChange} required>
+                                    <option value="Prefix" disabled selected>prefix</option>
+                                   <option value="Dr.">Dr.</option>
+                                    <option value="Mr.">Mr.</option>
+                                    <option value="Mrs.">Mrs.</option>
+                                    <option value="Ms">Ms</option>
+                                </Form.Control>}
+                                     
+                                  
+                                </Col>
+                            </Form.Group>
+                            {/* {errors.First_Name.length > 0 && 
+                               <span className='error'> {errors.First_Name} </span> } */}
+                            <span style={{display:"none"}} className="error" id="fnameerror">Name Shouldn't contain special characters!</span>
+                            <i className="fa fa-check" id="fnamesuccess" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"green"}}></i>
+                            <i className="fa fa-times" id="fnamefail" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"red"}}></i>
+                            <CustomTextBox
+                              htFor="First Name" 
+                              style="col col-form-label"
+                              txtBoxLabel="First Name"
+                              txtBoxType="text"
+                              txtBoxID="First_Name"
+                              txtBoxPH="First Name"                                      
+                              txtBoxValue={First_Name}
+                              changeEvent={this.onChange}
+                              txtBoxName="First_Name"
+                             />
+                             {/* {errors.Middle_Name.length > 0 && 
+                              <span className='error'> {errors.Middle_Name} </span> } */}
+                              <span style={{display:"none"}} className="error" id="mdnameerror">Name Shouldn't contain special characters!</span>
+                            <i className="fa fa-check" id="mdnamesuccess" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"green"}}></i>
+                            <i className="fa fa-times" id="mdnamefail" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"red"}}></i>
+                            <CustomTextBox
+                              htFor="Middle Name" 
+                              style="col col-form-label"
+                              txtBoxLabel="Middle Name"
+                              txtBoxType="text"
+                              txtBoxID="MiddleName"
+                              txtBoxPH="Middle Name"                                      
+                              txtBoxValue={Middle_Name}
+                              changeEvent={this.onChange}
+                              txtBoxName="Middle_Name"
+                             />
+                            {/* {errors.Last_Name.length > 0 && 
+                              <span className='error'> {errors.Last_Name} </span> } */}
+                              <span style={{display:"none"}} className="error" id="lnameerror">Name Shouldn't contain special characters!</span>
+                            <i className="fa fa-check" id="lnamesuccess" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"green"}}></i>
+                            <i className="fa fa-times" id="lnamefail" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"red"}}></i>
+
+                            <CustomTextBox
+                              htFor="Last Name" 
+                              style="col col-form-label"
+                              txtBoxLabel="Last Name"
+                              txtBoxType="text"
+                              txtBoxID="lastName"
+                              txtBoxPH="Last Name"                                      
+                              txtBoxValue={Last_Name}
+                              changeEvent={this.onChange}
+                              txtBoxName="Last_Name"
+                             />
+                            {/* {errors.Email.length > 0 && 
+                              <span className='error'> {errors.Email} </span> } */}
+                               <span style={{display:"none"}} className="error" id="emailerror">Email is not valid!</span>
+                            <i className="fa fa-check" id="emailsuccess" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"green"}}></i>
+                            <i className="fa fa-times" id="emailfail" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"red"}}></i>
+                            <CustomTextBox
+                              htFor="email" 
+                              style="col col-form-label"
+                              txtBoxLabel="Email"
+                              txtBoxType="email"
+                              txtBoxID="email"
+                              txtBoxPH="Email"                                      
+                              txtBoxValue={Email}
+                              changeEvent={this.onChange}
+                              txtBoxName="Email"
+                             />
+                            {/* {errors.Mobile.length > 0 && 
+                              <span className='error'> {errors.Mobile} </span> } */}
+                              <span style={{display:"none"}} className="error" id="moberror">Mobile number is not Valid!</span>
+                            <i className="fa fa-check" id="mobsuccess" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"green"}}></i>
+                            <i className="fa fa-times" id="mobfail" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"red"}}></i>
+                            <CustomTextBox
+                              htFor="mobile" 
+                              style="col col-form-label"
+                              txtBoxLabel="Mobile"
+                              txtBoxType="text"
+                              txtBoxID="mobile"
+                              txtBoxPH="Mobile"
+                              txtBoxPattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                              txtBoxValue={Mobile}
+                              changeEvent={this.onChange}
+                              txtBoxName="Mobile"
+                             />
+                             {/* {errors.Emergency_Contact_Person1.length > 0 && 
+                              <span className='error'> {errors.Emergency_Contact_Person1} </span> } */}
+                              <span style={{display:"none"}} className="error" id="pererror">Name Shouldn't contain special characters!</span>
+                            <i className="fa fa-check" id="persuccess" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"green"}}></i>
+                            <i className="fa fa-times" id="perfail" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"red"}}></i>
+                            <CustomTextBox
+                              htFor="person1" 
+                              style="col col-form-label"
+                              txtBoxLabel="Emergency Contact Person1"
+                              txtBoxType="text"
+                              txtBoxID="person1"
+                              txtBoxPH="Contact Person1"                                      
+                              txtBoxValue={Emergency_Contact_Person1}
+                              changeEvent={this.onChange}
+                              txtBoxName="Emergency_Contact_Person1"
+                             />
+                            {/* {errors.Emergency_Mobile1.length > 0 && 
+                              <span className='error'> {errors.Emergency_Mobile1} </span> } */}
+                              <span style={{display:"none"}} className="error" id="m1error">Mobile number is not Valid!</span>
+                            <i className="fa fa-check" id="m1success" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"green"}}></i>
+                            <i className="fa fa-times" id="m1fail" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"red"}}></i>
+                            <CustomTextBox
+                              htFor="mobile1" 
+                              style="col col-form-label"
+                              txtBoxLabel="Emergency Mobile1"
+                              txtBoxType="text"
+                              txtBoxID="mobile1"
+                              txtBoxPH="contact"
+                              txtBoxPattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                              txtBoxValue={Emergency_Mobile1}
+                              changeEvent={this.onChange}
+                              txtBoxName="Emergency_Mobile1"
+                             />
+                            <Form.Group as={Row}>
+                                <Form.Label htmlFor="relationship" class="col col-form-label">Relationship 1</Form.Label>
+                                <Col>
+                                    {ClientId === null? <Form.Control as="select" custom className="selectStyle" id="relationship" name="Relationship_1" onChange={this.onChange} required>
+                                        <option value="Relationship_1"selected disabled>Relationship 1</option>
+                                        <option value="father">father</option>
+                                        <option value="mother">mother</option>
+                                        <option value="relative ">relative </option>
+                                        <option value="friend ">friend</option>
+                                    </Form.Control>
+                                    :
+                                    <Form.Control as="select" custom className="selectStyle" id="relationship" name="Relationship_1" onChange={this.onChange} required>
+                                        <option value={Relationship_1}selected disabled>{Relationship_1}</option>
+                                        <option value="father">father</option>
+                                        <option value="mother">mother</option>
+                                        <option value="relative ">relative </option>
+                                        <option value="friend ">friend</option>
+                                    </Form.Control>}
+                                </Col>
+                            </Form.Group>
+                            {/* {errors.Emergency_Contact_Person2.length > 0 && 
+                              <span className='error'> {errors.Emergency_Contact_Person2} </span> } */}
+                              <span style={{display:"none"}} className="error" id="per2error">Name Shouldn't contain special characters!</span>
+                            <i className="fa fa-check" id="per2success" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"green"}}></i>
+                            <i className="fa fa-times" id="per2fail" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"red"}}></i>
+                            <CustomTextBox
+                              htFor="person2" 
+                              style="col col-form-label"
+                              txtBoxLabel="Emergency Contact Person2"
+                              txtBoxType="text"
+                              txtBoxID="person2"
+                              txtBoxPH="contact"                                      
+                              txtBoxValue={Emergency_Contact_Person2}
+                              changeEvent={this.onChange}
+                              txtBoxName="Emergency_Contact_Person2"
+                             />
+                           
+                           {/* {errors.Emergency_Mobile2.length > 0 && 
+                              <span className='error'> {errors.Emergency_Mobile2} </span> } */}
+                              <span style={{display:"none"}} className="error" id="m2error">Mobile number is not Valid!</span>
+                            <i className="fa fa-check" id="m2success" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"green"}}></i>
+                            <i className="fa fa-times" id="m2fail" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"red"}}></i>
+                            <CustomTextBox
+                              htFor="mobile2" 
+                              style="col col-form-label"
+                              txtBoxLabel="Emergency Mobile2"
+                              txtBoxType="text"
+                              txtBoxID="mobile2"
+                              txtBoxPH="Contact"            
+                              txtBoxPattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+                              txtBoxValue={Emergency_Mobile2}
+                              changeEvent={this.onChange}
+                              txtBoxName="Emergency_Mobile2"
+                             />
+                            <Form.Group as={Row}>
+                                <Form.Label htmlFor="relationship 2" class="col col-form-label">Relationship 2</Form.Label>
+                                <Col>
+                                  {ClientId === null ? <Form.Control as="select" custom className="selectStyle" id="relationship" name="Relationship_2" onChange={this.onChange} required>
+                                        <option value="Relationship_2"selected disabled>Relationship 2</option>
+                                        <option value="father">father</option>
+                                        <option value="mother">mother</option>
+                                        <option value="relative ">relative </option>
+                                        <option value="friend ">friend</option>
+                                    </Form.Control>
+                                    :
+                                    <Form.Control as="select" custom className="selectStyle" id="relationship" name="Relationship_2" onChange={this.onChange} required>
+                                        <option value={Relationship_2}selected disabled>{Relationship_2}</option>
+                                        <option value="father">father</option>
+                                        <option value="mother">mother</option>
+                                        <option value="relative ">relative </option>
+                                        <option value="friend ">friend</option>
+                                    </Form.Control>} 
+                                </Col>
+                            </Form.Group>
+                        </Col>
+                        <Col sm={12} lg={4} >
+                      {/* {errors.Address.length > 0 && 
+                              <span className='error'> {errors.  Address} </span> } */}
+                              <span style={{display:"none"}} className="error" id="adderror">Address is Not Valid!</span>
+                            <i className="fa fa-check" id="addsuccess" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"green"}}></i>
+                            <i className="fa fa-times" id="addfail" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"red"}}></i>
+                            <CustomTextBox
+                              htFor="address" 
+                              style="col col-form-label"
+                              txtBoxLabel="Address"
+                              txtBoxType="text"
+                              txtBoxID="address"
+                              txtBoxPH="Address"                                      
+                              txtBoxValue={Address}
+                              changeEvent={this.onChange}
+                              txtBoxName="Address"
+                             />
+                            {/* {errors.City.length > 0 && 
+                              <span className='error'> {errors.City} </span> } */}
+                              <span style={{display:"none"}} className="error" id="cityerror">City is not Valid!</span>
+                            <i className="fa fa-check" id="citysuccess" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"green"}}></i>
+                            <i className="fa fa-times" id="cityfail" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"red"}}></i>
+                            <CustomTextBox
+                              htFor="city" 
+                              style="col col-form-label"
+                              txtBoxLabel="city"
+                              txtBoxType="text"
+                              txtBoxID="city"
+                              txtBoxPH="City"                                      
+                              txtBoxValue={City}
+                              changeEvent={this.onChange}
+                              txtBoxName="City"
+                             />
+                             {/* {errors.State.length > 0 && 
+                              <span className='error'> {errors.State} </span>} */}
+                              <span style={{display:"none"}} className="error" id="stateerror">State is not valid!</span>
+                            <i className="fa fa-check" id="statesuccess" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"green"}}></i>
+                            <i className="fa fa-times" id="statefail" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"red"}}></i>
+                            <CustomTextBox
+                              htFor="state" 
+                              style="col col-form-label"
+                              txtBoxLabel="State"
+                              txtBoxType="text"
+                              txtBoxID="state"
+                              txtBoxPH="State"                                      
+                              txtBoxValue={State}
+                              changeEvent={this.onChange}
+                              txtBoxName="State"
+                             />
+                            {/* {errors.Zip_Code.length > 0 && 
+                              <span className='error'> {errors.Zip_Code} </span> } */}
+                              <span style={{display:"none"}} className="error" id="zcodeerror">Zipcode is not Valid!</span>
+                            <i className="fa fa-check" id="zcodesuccess" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"green"}}></i>
+                            <i className="fa fa-times" id="zcodefail" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"red"}}></i>
+                            <CustomTextBox
+                              htFor="zip code" 
+                              style="col col-form-label"
+                              txtBoxLabel="Zip code"
+                              txtBoxType="text"
+                              txtBoxID="zipcode"
+                              txtBoxPH="Zip code"                                      
+                              txtBoxValue={Zip_Code}
+                              changeEvent={this.onChange}
+                              txtBoxName="Zip_Code"
+                             />
+                             {/* {errors.Country.length > 0 && 
+                              <span className='error'> {errors.Country} </span> } */}
+                              <span style={{display:"none"}} className="error" id="countryerror">Country is not Valid!</span>
+                            <i className="fa fa-check" id="countrysuccess" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"green"}}></i>
+                            <i className="fa fa-times" id="countryfail" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"red"}}></i>
+                            <CustomTextBox
+                              htFor="country" 
+                              style="col col-form-label"
+                              txtBoxLabel="Country"
+                              txtBoxType="text"
+                              txtBoxID="country"
+                              txtBoxPH="Country"                                      
+                              txtBoxValue={Country}
+                              changeEvent={this.onChange}
+                              txtBoxName="Country"
+                             />
+                            {/* {errors.School_District.length > 0 && 
+                              <span className='error'> {errors.School_District} </span> } */}
+                               <span style={{display:"none"}} className="error" id="disterror">District is not Valid!</span>
+                            <i className="fa fa-check" id="distsuccess" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"green"}}></i>
+                            <i className="fa fa-times" id="distfail" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"red"}}></i>
+                            <CustomTextBox
+                              htFor="school district" 
+                              style="col col-form-label"
+                              txtBoxLabel="School District"
+                              txtBoxType="text"
+                              txtBoxID="schooldistrict"
+                              txtBoxPH=""                                      
+                              txtBoxValue={School_District}
+                              changeEvent={this.onChange}
+                              txtBoxName="School_District"
+                             />
+                            <Form.Group as={Row}>
+                                <Form.Label htmlFor="currently teaching" class="col col-form-label">currently teaching</Form.Label>
+                                <Col>
+                                    <Form.Check type="checkbox" class="form-check-input"  id=""
+                                        value="academy / magnet / cbse schools" label="academy / magnet / cbse schools"                                         
+                                        checked={this.state.Currently_Teaching}                                    
+                                        onChange={this.onChange} 
+                                        name="Currently_Teaching"
+                                        required
+                                        />
+                                </Col>
+                            </Form.Group>
+                            
+                            {/* {errors.Ap_Classess.length > 0 && 
+                              <span className='error'> {errors.Ap_Classess} </span> } */}
+                               <span style={{display:"none"}} className="error" id="aperror">District is not Valid!</span>
+                            <i className="fa fa-check" id="apsuccess" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"green"}}></i>
+                            <i className="fa fa-times" id="apfail" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"red"}}></i>
+                            <CustomTextBox
+                              htFor="ap classess" 
+                              style="col col-form-label"
+                              txtBoxLabel="ap classess"
+                              txtBoxType="text"
+                              txtBoxID="apclassess"
+                              txtBoxPH=""                                      
+
+
+                              txtBoxValue={Ap_Classess}
+                              changeEvent={this.onChange}
+                              txtBoxName="Ap_Classess"
+                             />
+                            {/* {errors.Notes_Comments.length > 0 && 
+                              <span className='error'> {errors.Notes_Comments} </span> } */}
+                               <span style={{display:"none"}} className="error" id="noteserrror">District is not Valid!</span>
+                            <i className="fa fa-check" id="notessuccess" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"green"}}></i>
+                            <i className="fa fa-times" id="notesfail" style={{position:"relative",left:"93%",top:"3%", zIndex:"1", display:"none", color:"red"}}></i>
+                            <CustomTextBox
+                              htFor="notes" 
+                              style="col col-form-label"
+                              txtBoxLabel="notes/comments"
+                              txtBoxType="text"
+                              txtBoxID="notes"
+                              txtBoxPH=""                                      
+                              txtBoxValue={Notes_Comments}
+                              changeEvent={this.onChange}
+                              txtBoxName="Notes_Comments"
+                             />
+                            <Form.Group as={Row}>
+                                <Form.Label for="high degree" class="col col-form-label">high degree completed</Form.Label>
+                                <Col>
+                                    <Form.Check type="checkbox" class="form-check-input" name="undergratuate" id=""
+                                        value="true" checked={undergraduate} label="undergraduate" onChange={this.onChecked}/>
+                                    <Form.Check type="checkbox" class="form-check-input" name="master" id=""
+                                        value="true" checked={master}  label="master"  onChange={this.onChecked} />
+                                    <Form.Check type="checkbox" class="form-check-input" name="doctorate" id=""
+                                        value="true" checked={doctorate} label="doctorate" onChange={this.onChecked}/>
+                                    <Form.Check type="checkbox" class="form-check-input" name="credentials" id="" 
+                                        value="true" checked={credentials} label="credentials" onChange={this.onChecked}/>
+                                </Col>
+                            </Form.Group>
+                        </Col>
+                        <Col sm={12} lg={4}>
+                            <Form.Group as={Row}>
+                                <Form.Label for="inputtext3" class="col col-form-label">grade level</Form.Label>
+                                <Col>
+                                    <Form.Check type="checkbox" class="form-check-input" name="freshman" id=""
+                                        value="freshman" label="freshman" onChange={this.onChange} />
+                                    <Form.Check type="checkbox" class="form-check-input" name="sophomore" id=""
+                                        value="sophomore" label="sophomore" onChange={this.onChange} /> 
+                                    <Form.Check type="checkbox" class="form-check-input" name="junior" id=""
+                                        value="junior" label="junior" onChange={this.onChange} />
+                                    <Form.Check type="checkbox" class="form-check-input" name="senior" id=""
+                                        value="senior" label="senior" onChange={this.onChange} />
+                                    <Form.Check type="checkbox" class="form-check-input" name="college_level" id="" 
+                                        value="college level" label="college level" onChange={this.onChange} />
+                                    <Form.Check type="checkbox" class="form-check-input" name="Grade_Level" id="" 
+                                        value="above all" label="above all" onChange={this.onChange} />
+                                </Col>
+                            </Form.Group>
+                            <Form.Group as={Row}>
+                                <Form.Label for="speciality" class="col col-form-label">speciality</Form.Label>
+                                <Col>
+                                    <Form.Check type="checkbox" class="form-check-input" name="english" id=""
+                                        value="english" label="english" onChange={this.onChange} />
+                                    <Form.Check type="checkbox" class="form-check-input" name="math" id=""
+                                        value="math" label="math" onChange={this.onChange} />
+                                    <Form.Check type="checkbox" class="form-check-input" name="science_all" id="" 
+                                        value="science all" label="science all" onChange={this.onChange} />
+                                    <Form.Check type="checkbox" class="form-check-input" name="physics" id=""
+                                        value="physics" label="physics" onChange={this.onChange} />
+                                    <Form.Check type="checkbox" class="form-check-input" name="chemistry" id=""
+                                        value="chemistry" label="chemistry" onChange={this.onChange} />
+                                    <Form.Check type="checkbox" class="form-check-input" name="biology_zoology" id=""
+                                        value="biology/zoology" label="biology/zoology" onChange={this.onChange} />
+                                    <Form.Check type="checkbox" class="form-check-input" name="lesson_1" id="" 
+                                        value="1:1 lesson" label="1:1 lesson" onChange={this.onChange} />
+                                    <Form.Check type="checkbox" class="form-check-input" name="Speciality" id=""
+                                        value="above all" label="above all"onChange={this.onChange}  />
+                                    <Form.Check type="checkbox" class="form-check-input" name="group_lesson" id=""
+                                        value="group lesson" label="group lesson" onChange={this.onChange} />
+                                </Col>
+                            </Form.Group>
+                        </Col>
+                    </Row>
+                        <Row className="row justify-content-md-center">
+                                        <CustomButton  style="col btnBlue" BtnTxt="Add Teacher " disabledButton={this.state.ClientId!=null} ClickEvent={this.onSubmit} />
+                                        <CustomButton  style="col btnBlue" BtnTxt="Update Teacher " disabledButton={this.state.ClientId==null} ClickEvent={this.onUpdate}/>    
+                                        <CustomButton  style="col btnBlue" BtnTxt="Delete Teacher " disabledButton={this.state.ClientId==null} ClickEvent={this.onDelete}/>
+                                        <CustomButton  style="col btnBlue" BtnTxt="Cancel" ClickEvent={this.onCancel} />                             
+                         </Row>
+                </Card.Body>
+                </Form> </Card>    
+                < Footer />  
+
+    </Container>
+                </>
+        )
+      }
+}
+
+export default ManageTeachers;
