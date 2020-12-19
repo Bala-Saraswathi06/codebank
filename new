@@ -1,0 +1,394 @@
+import React, { Component } from 'react'
+import {
+    Container,
+    Card,
+    Form,
+    Row,
+    Col,
+    Button
+} from 'react-bootstrap';
+import CustomButton from '../../components/Button/Button';
+import CustomTextBox from '../../components/TextBox/TextBox';
+import Footer from '../../components/Footer'
+import {
+    Link,
+} from 'react-router-dom';
+import axios from 'axios'
+import Swal from 'sweetalert2'
+import { pathOr, isEmpty, trim, lensPath, set, remove ,equals,head,filter,data,takeLast} from 'ramda';
+
+
+export default class Answeroptions extends Component {
+    constructor(props){
+        super(props);
+        this.state = {
+
+            question_id : null,
+            answer_id : null,
+            QuestionName : '',
+            answers : {
+                answer_1  :'',
+                answer_2  :'',
+                answer_3  :'',
+                answer_4  :'',
+            },
+            answer_key_index : '',
+            question : [],
+            test :[],
+            TestName : '',
+        }
+    }
+    componentDidMount() {
+        axios.get(`http://localhost:8000/quiz/quiz/`)
+        .then(res => {
+            const test = res.data
+            this.setState({test})
+            console.log(test)
+        })
+        // axios.get(`http://localhost:8000/quiz/question/`)
+        //   .then(res => {
+        //     const question = res.data;
+        //     this.setState({ question });
+        //     console.log(this.state.question,"question")
+        //   })
+      }
+    //   getQuestionName = (question,text)=>{
+    //     const getQuestionDeatilsWithName = (data) => {
+      
+    //       return equals(
+    //         pathOr(
+    //           {},
+    //           [
+    //             'question_text'
+    //           ],
+    //           data
+    //         ),
+    //         text
+    //       )
+              
+    //     }
+    //     return filter(getQuestionDeatilsWithName,question)
+    //   }
+    getTestName = (test,test_name)=>{
+        const getTestDeatilsWithName = (data) => {
+      
+          return equals(
+            pathOr(
+              {},
+              [
+                'test_name'
+              ],
+              data
+            ),
+            test_name
+          )
+              
+        }
+        return filter(getTestDeatilsWithName,test)
+      }
+      getQuestionDetails = (test,question_name)=>{
+        const getQuestionDetailswithName = (data) => {
+      
+          return equals(
+            pathOr(
+              {},
+              [
+                'question_text'
+              ],
+              data
+            ),
+            question_name
+          )
+              
+        }
+        return filter(getQuestionDetailswithName,test)
+      }
+      onChange = (e) =>{
+
+        e.preventDefault();
+
+        if(equals(e.target.name,"TestName")){
+            const filterData =  head(this.getTestName(this.state.test,e.target.value))
+             console.log(filterData,"testdata")
+             this.setState({
+                question : filterData.question,
+            },()=>{console.log(this.state.question,"question")})
+                return
+        }
+        if(equals(e.target.name,"QuestionName")){
+                    const filterData =  head(this.getQuestionDetails(this.state.question,e.target.value))
+                    console.log(filterData,"questiondata")
+                    // this.setState({question_id: pathOr("",["questionid"],filterData)})
+                    const Answers = head(filterData.answers)
+                    console.log(Answers,"Answers")
+
+                    if(Answers!=undefined){
+                        const name = JSON.parse(Answers.name)
+                        console.log(name,"name")
+                        this.setState({
+                            answer_id :  pathOr('',["answersid"],Answers),
+                            answers:{
+                                answer_1 :pathOr("",["answer_1"], name),
+                                answer_2 : pathOr("",["answer_2"], name),
+                                answer_3 : pathOr("",["answer_3"], name),
+                                answer_4 : pathOr("",["answer_4"], name),
+                            },
+                            answer_key_index: pathOr("",["answer_key_index"], Answers),
+                        })
+                    }
+                    else{
+                                    this.setState({
+                                        answer_id:'',
+                                        answers:{
+                                            answer_1:'',
+                                            answer_2:'',
+                                            answer_3:'',
+                                            answer_4:'',
+                                        },
+                                        answer_key_index:'',
+                                    });
+                                }
+                    
+        }
+        // if(equals(e.target.name,"QuestionName")){
+        //         const filterData =  head(this.getQuestionName(this.state.question,e.target.value))
+        //         console.log(filterData,"filterdata")
+        //         this.setState({question_id: pathOr("",["questionid"],filterData)})
+        //         const Answers = head(filterData.answers)
+        //         console.log(Answers,"Answers")
+        //         if(Answers!=undefined){
+        //             const name = JSON.parse(Answers.name)
+        //             console.log(name,"name")
+        //             this.setState({
+        //                 question_id: pathOr("",["questionid"],filterData),
+        //                 answer_id :  pathOr('',["answersid"],Answers),
+        //                 answers:{
+        //                     answer_1 :pathOr("",["answer_1"], name),
+        //                     answer_2 : pathOr("",["answer_2"], name),
+        //                     answer_3 : pathOr("",["answer_3"], name),
+        //                     answer_4 : pathOr("",["answer_4"], name),
+        //                 },
+        //                 answer_key_index: pathOr("",["answer_key_index"], Answers),
+        //             })
+        //         }
+        //         else{
+        //             this.setState({
+        //                 answers:{
+        //                     answer_1:'',
+        //                     answer_2:'',
+        //                     answer_3:'',
+        //                     answer_4:'',
+        //                 },
+        //                 answer_key_index:'',
+        //             });
+        //         }
+        //             return
+        //     }
+            this.setState({ answer_key_index : e.target.value})
+            console.log(e.target.value, 'value')       
+        }  
+
+        onChangeAns = e =>{
+            this.setState(prevState=>{
+                let answers = {...prevState.answers};
+                answers.[e.target.name] = e.target.value
+                return {answers}
+           },()=>{ console.log(this.state,"answers")})
+        }
+        
+        onSubmit = (e) =>{
+            const {answers,answer_key_index,question_id,answer_id} = this.state 
+
+            if(answers.answer_1===''|| answers.answer_2===''|| answers.answer_3===''|| answers.answer_4===''|| answer_key_index==='' || question_id===''){
+            
+                Swal.fire({
+                    icon:"error",
+                    text:"Please Fillout All the Fields", 
+                    title:"Oops!..."})
+            }
+            else{
+                let formdata = new FormData()
+                formdata.append('name',JSON.stringify(answers))
+                formdata.append('question',question_id)
+                formdata.append('isAnswer',answer_key_index)
+                axios.post(`http://localhost:8000/quiz/answers/`, formdata)
+                .then(function (response) {
+                    //access the results here....           
+                Swal.fire({
+                    icon:'success',
+                    title:'success',
+                    text:"Steps Added"
+                    }).then(setInterval(function(){window.location.reload();},1500));// alert
+                console.log(response);// log
+                })
+                .catch(function (error) {
+                console.log(error);
+                })
+            }
+            
+        }
+        onUpdate = (e) =>{
+            const {answers,answer_key_index,question_id,answer_id} = this.state 
+            console.log(this.state,"state")
+            if(answers.answer_1===''|| answers.answer_2===''|| answers.answer_3===''|| answers.answer_4===''|| answer_key_index==='' || question_id===''){
+            
+                Swal.fire({
+                    icon:"error",
+                    text:"Please Fillout All the Fields", 
+                    title:"Oops!..."})
+            }
+            else{
+                let formdata = new FormData()
+                formdata.append('name',JSON.stringify(answers))
+                formdata.append('question',question_id)
+                formdata.append('isAnswer',answer_key_index)
+                axios.put(`http://localhost:8000/quiz/answers/` + answer_id + '/', formdata)
+                .then(function (response) {
+                    //access the results here....           
+                Swal.fire({
+                    icon:'success',
+                    title:'success',
+                    text:"Steps Added"
+                    }).then(setInterval(function(){window.location.reload();},1500));// alert
+                console.log(response);// log
+                })
+                .catch(function (error) {
+                console.log(error);
+                })
+            }
+            
+        }
+    render() {
+        const {answer_id, QuestionName,answer_1,answer_2,answer_3,answer_4,answer_key_index,question_id} = this.state
+        return (
+            <div>
+                <Container style={{marginTop: '50px'}}>
+                    <Card >
+                        <nav className="nav" style={{display:"flex"}}>
+                            <div className="headTitle"><p style={{marginLeft:"5%"}}>Add options</p></div>
+                            <div className="headTitle2"><p style={{marginLeft:"70%", marginTop:"10px"}}>Welcome, Admin!</p></div>
+                        </nav>
+                        
+                        <Form onSubmit={this.onSubmit}>
+                            <Card.Body>
+                            <Row className="row justify-content-center">
+                            <Col lg={6} sm={12}>
+                            <Form.Group as={Row}>
+                                        <Form.Label htmlFor="select test" className="col col-form-label">Select Test</Form.Label>
+                                            <Col >
+                                                <Form.Control as="select" custom className="selectStyle" id="Test Name" defaultValue={'TestName'}  name="TestName"  onChange={this.onChange} required>
+                                                    
+                                                    <option value="" disabled selected >TestName</option> 
+                                                    { this.state.test.map(test =>
+                                                        <option key={test.quizid} value={test.test_name} >{test.test_name}</option>)}                                           
+                                                </Form.Control>
+                                            </Col>
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row className="row justify-content-center">
+                            <Col lg={6} sm={12}>
+                            <Form.Group as={Row}>
+                                        <Form.Label htmlFor="select Question" className="col col-form-label">Select Question</Form.Label>
+                                            <Col >
+                                                <Form.Control as="select" custom className="selectStyle" id="Question Name" defaultValue={'QuestionName'}  name="QuestionName"  onChange={this.onChange} required>
+                                                    <option value="Question Name"  >Question Name</option> 
+                                                    { this.state.question.map(question =>
+                                                        <option key={question.question_id} value={question.question_text} >{question.question_text}</option>)}                                           
+                                                </Form.Control>
+                                            </Col>
+                                    </Form.Group> 
+                                    </Col>
+                            </Row>
+                            <Row className="row justify-content-center">
+                                    <Col lg={6}>
+                                    <CustomTextBox
+                                        htFor="answer_1" 
+                                        style="col col-form-label"
+                                        txtBoxLabel="Answer1 text"
+                                        txtBoxType="text"
+                                        txtBoxID="answer_1"
+                                        txtBoxPH="Answer 1"                                     
+                                        txtBoxValue={this.state.answers.answer_1}
+                                        changeEvent={this.onChangeAns}
+                                        txtBoxName="answer_1"
+                                        />
+                                    </Col>
+                            </Row>
+                            <Row className="row justify-content-center">
+                            <Col lg={6}>
+                            <CustomTextBox
+                              htFor="answer_2" 
+                              style="col col-form-label"
+                              txtBoxLabel="Answer2 text"
+                              txtBoxType="text"
+                              txtBoxID="answer_2"
+                              txtBoxPH="Answer 2"                                     
+                              txtBoxValue={this.state.answers.answer_2}
+                              changeEvent={this.onChangeAns}
+                              txtBoxName="answer_2"
+                             />
+                             </Col>
+                             </Row>
+                            <Row className="row justify-content-center">
+                            <Col lg={6}>
+                             <CustomTextBox
+                              htFor="answer_3" 
+                              style="col col-form-label"
+                              txtBoxLabel="Answer3 text"
+                              txtBoxType="text"
+                              txtBoxID="answer_3"
+                              txtBoxPH="Answer 3"                                     
+                              txtBoxValue={this.state.answers.answer_3}
+                              changeEvent={this.onChangeAns}
+                              txtBoxName="answer_3"
+                             />
+                             </Col>
+                            </Row>
+                            
+                            <Row className="row justify-content-center">
+                            <Col lg={6}>
+                              <CustomTextBox
+                              htFor="answer_4" 
+                              style="col col-form-label"
+                              txtBoxLabel="Answer4 text"
+                              txtBoxType="text"
+                              txtBoxID="answer_4"
+                              txtBoxPH="Answer 4"                                     
+                              txtBoxValue={this.state.answers.answer_4}
+                              changeEvent={this.onChangeAns}
+                              txtBoxName="answer_4"
+                             />
+                             </Col>
+                            </Row>
+                            <Row className="row justify-content-center">
+                                    <Col lg={6}>
+                                        <Form.Group as={Row}>
+                                            <Form.Label htmlFor="answer key index" className="col col-form-label">answer key index</Form.Label>
+                                            <Col>
+                                                <Form.Control as="select" custom className="selectStyle" id="answer key index" name="answer_key_index" onChange={this.onChange} required>
+                                                    <option value="answer key index"selected disabled>Answer Key Index</option>
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                </Form.Control>
+                                            </Col>
+                                        </Form.Group>
+                                    </Col>
+                            </Row>
+                            <Row className="row justify-content-md-center" style={{marginTop:"2%"}}>
+                                        <CustomButton  style="col btnBlue" BtnTxt="Add"  ClickEvent={this.onSubmit} />
+                                        <CustomButton  style="col btnBlue" BtnTxt="Update"  ClickEvent={this.onUpdate}/>    
+                                        <CustomButton  style="col btnBlue" BtnTxt="Import"  ClickEvent={this.onImport}/>
+                                        <CustomButton  style="col btnBlue" BtnTxt="Export" ClickEvent={this.onExport}/>
+                                        <Link to="/steps" style={{color:"white"}}>  <Button style={{marginTop:"5%"}} className="col btnBlue" onClick={this.next}>Add Answers</Button> </Link>                              
+                            </Row>
+                            </Card.Body>
+                        </Form>
+                    </Card>
+                </Container>
+            </div>
+        )
+    }
+}
