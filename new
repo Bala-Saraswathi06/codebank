@@ -1,394 +1,257 @@
-import React, { Component } from 'react'
+import React,{Component} from 'react';
 import {
     Container,
     Card,
     Form,
     Row,
     Col,
-    Button
+    Button,
 } from 'react-bootstrap';
-import CustomButton from '../../components/Button/Button';
-import CustomTextBox from '../../components/TextBox/TextBox';
-import Footer from '../../components/Footer'
-import {
-    Link,
-} from 'react-router-dom';
-import axios from 'axios'
-import Swal from 'sweetalert2'
-import { pathOr, isEmpty, trim, lensPath, set, remove ,equals,head,filter,data,takeLast} from 'ramda';
 
+import { pathOr, isEmpty, trim, lensPath, set, remove ,equals,head,filter,data} from 'ramda';
+import swal from 'sweetalert';
+import axios from 'axios';
+import CustomButton from '../../../components/Button/Button';
+import Footer from '../../../components/Footer'
+import CheckBox from '../CheckBox'
 
-export default class Answeroptions extends Component {
-    constructor(props){
-        super(props);
-        this.state = {
-
-            question_id : null,
-            answer_id : null,
-            QuestionName : '',
-            answers : {
-                answer_1  :'',
-                answer_2  :'',
-                answer_3  :'',
-                answer_4  :'',
-            },
-            answer_key_index : '',
-            question : [],
-            test :[],
-            TestName : '',
-        }
-    }
-    componentDidMount() {
-        axios.get(`http://localhost:8000/quiz/quiz/`)
-        .then(res => {
-            const test = res.data
-            this.setState({test})
-            console.log(test)
-        })
-        // axios.get(`http://localhost:8000/quiz/question/`)
-        //   .then(res => {
-        //     const question = res.data;
-        //     this.setState({ question });
-        //     console.log(this.state.question,"question")
-        //   })
-      }
-    //   getQuestionName = (question,text)=>{
-    //     const getQuestionDeatilsWithName = (data) => {
-      
-    //       return equals(
-    //         pathOr(
-    //           {},
-    //           [
-    //             'question_text'
-    //           ],
-    //           data
-    //         ),
-    //         text
-    //       )
-              
-    //     }
-    //     return filter(getQuestionDeatilsWithName,question)
-    //   }
-    getTestName = (test,test_name)=>{
-        const getTestDeatilsWithName = (data) => {
-      
-          return equals(
-            pathOr(
-              {},
-              [
-                'test_name'
-              ],
-              data
-            ),
-            test_name
-          )
-              
-        }
-        return filter(getTestDeatilsWithName,test)
-      }
-      getQuestionDetails = (test,question_name)=>{
-        const getQuestionDetailswithName = (data) => {
-      
-          return equals(
-            pathOr(
-              {},
-              [
-                'question_text'
-              ],
-              data
-            ),
-            question_name
-          )
-              
-        }
-        return filter(getQuestionDetailswithName,test)
-      }
-      onChange = (e) =>{
-
-        e.preventDefault();
-
-        if(equals(e.target.name,"TestName")){
-            const filterData =  head(this.getTestName(this.state.test,e.target.value))
-             console.log(filterData,"testdata")
-             this.setState({
-                question : filterData.question,
-            },()=>{console.log(this.state.question,"question")})
-                return
-        }
-        if(equals(e.target.name,"QuestionName")){
-                    const filterData =  head(this.getQuestionDetails(this.state.question,e.target.value))
-                    console.log(filterData,"questiondata")
-                    // this.setState({question_id: pathOr("",["questionid"],filterData)})
-                    const Answers = head(filterData.answers)
-                    console.log(Answers,"Answers")
-
-                    if(Answers!=undefined){
-                        const name = JSON.parse(Answers.name)
-                        console.log(name,"name")
-                        this.setState({
-                            answer_id :  pathOr('',["answersid"],Answers),
-                            answers:{
-                                answer_1 :pathOr("",["answer_1"], name),
-                                answer_2 : pathOr("",["answer_2"], name),
-                                answer_3 : pathOr("",["answer_3"], name),
-                                answer_4 : pathOr("",["answer_4"], name),
-                            },
-                            answer_key_index: pathOr("",["answer_key_index"], Answers),
-                        })
-                    }
-                    else{
-                                    this.setState({
-                                        answer_id:'',
-                                        answers:{
-                                            answer_1:'',
-                                            answer_2:'',
-                                            answer_3:'',
-                                            answer_4:'',
-                                        },
-                                        answer_key_index:'',
-                                    });
-                                }
-                    
-        }
-        // if(equals(e.target.name,"QuestionName")){
-        //         const filterData =  head(this.getQuestionName(this.state.question,e.target.value))
-        //         console.log(filterData,"filterdata")
-        //         this.setState({question_id: pathOr("",["questionid"],filterData)})
-        //         const Answers = head(filterData.answers)
-        //         console.log(Answers,"Answers")
-        //         if(Answers!=undefined){
-        //             const name = JSON.parse(Answers.name)
-        //             console.log(name,"name")
-        //             this.setState({
-        //                 question_id: pathOr("",["questionid"],filterData),
-        //                 answer_id :  pathOr('',["answersid"],Answers),
-        //                 answers:{
-        //                     answer_1 :pathOr("",["answer_1"], name),
-        //                     answer_2 : pathOr("",["answer_2"], name),
-        //                     answer_3 : pathOr("",["answer_3"], name),
-        //                     answer_4 : pathOr("",["answer_4"], name),
-        //                 },
-        //                 answer_key_index: pathOr("",["answer_key_index"], Answers),
-        //             })
-        //         }
-        //         else{
-        //             this.setState({
-        //                 answers:{
-        //                     answer_1:'',
-        //                     answer_2:'',
-        //                     answer_3:'',
-        //                     answer_4:'',
-        //                 },
-        //                 answer_key_index:'',
-        //             });
-        //         }
-        //             return
-        //     }
-            this.setState({ answer_key_index : e.target.value})
-            console.log(e.target.value, 'value')       
-        }  
-
-        onChangeAns = e =>{
-            this.setState(prevState=>{
-                let answers = {...prevState.answers};
-                answers.[e.target.name] = e.target.value
-                return {answers}
-           },()=>{ console.log(this.state,"answers")})
-        }
+class AdminClassroom extends Component{
+    constructor() {
+        super();
+    this.state = {
         
-        onSubmit = (e) =>{
-            const {answers,answer_key_index,question_id,answer_id} = this.state 
+        Select_Teacher:'',
+        Courses_Taught:{
+            ACT:'',
+            SAT:'',
+        },
+        Select_Students: [],
+        teachers:[],
+        students:[],
+        object : {},
+    }
+}
 
-            if(answers.answer_1===''|| answers.answer_2===''|| answers.answer_3===''|| answers.answer_4===''|| answer_key_index==='' || question_id===''){
-            
-                Swal.fire({
-                    icon:"error",
-                    text:"Please Fillout All the Fields", 
-                    title:"Oops!..."})
-            }
-            else{
-                let formdata = new FormData()
-                formdata.append('name',JSON.stringify(answers))
-                formdata.append('question',question_id)
-                formdata.append('isAnswer',answer_key_index)
-                axios.post(`http://localhost:8000/quiz/answers/`, formdata)
-                .then(function (response) {
-                    //access the results here....           
-                Swal.fire({
-                    icon:'success',
-                    title:'success',
-                    text:"Steps Added"
-                    }).then(setInterval(function(){window.location.reload();},1500));// alert
-                console.log(response);// log
-                })
-                .catch(function (error) {
-                console.log(error);
-                })
-            }
-            
+    componentDidMount() {
+       
+        axios.get(`http://localhost:8000/api/teacher/`)
+        .then(res => {
+          const teachers = res.data;
+          this.setState({ teachers });
+          console.log(teachers);
+        })
+        
+        axios.get(`http://localhost:8000/api/student/`)
+        .then(res => {
+          const students = res.data;
+          this.setState({ students });
+          console.log(students ,"students");
+        })
+    }
+    getTeachersName = (teachers,teacher_name)=>{
+        const getClientDeatilsWithName = (data) => {
+      
+          return equals(
+            pathOr(
+              {},
+              [
+                'First_Name'
+              ],
+              data
+            ),
+            teacher_name
+          )
+              
         }
-        onUpdate = (e) =>{
-            const {answers,answer_key_index,question_id,answer_id} = this.state 
-            console.log(this.state,"state")
-            if(answers.answer_1===''|| answers.answer_2===''|| answers.answer_3===''|| answers.answer_4===''|| answer_key_index==='' || question_id===''){
-            
-                Swal.fire({
-                    icon:"error",
-                    text:"Please Fillout All the Fields", 
-                    title:"Oops!..."})
+        return filter(getClientDeatilsWithName,teachers)
+      }
+    onChange = (e) => {
+        if(equals(e.target.name,"Select_Teacher")){
+        
+            const filterData =  head(this.getTeachersName(this.state.teachers,e.target.value))
+             console.log(filterData)
+               this.setState({
+                               Select_Teacher: pathOr("",["First_Name"],filterData),
+               })
             }
-            else{
-                let formdata = new FormData()
-                formdata.append('name',JSON.stringify(answers))
-                formdata.append('question',question_id)
-                formdata.append('isAnswer',answer_key_index)
-                axios.put(`http://localhost:8000/quiz/answers/` + answer_id + '/', formdata)
-                .then(function (response) {
-                    //access the results here....           
-                Swal.fire({
-                    icon:'success',
-                    title:'success',
-                    text:"Steps Added"
-                    }).then(setInterval(function(){window.location.reload();},1500));// alert
-                console.log(response);// log
-                })
-                .catch(function (error) {
-                console.log(error);
-                })
-            }
+        
+        //to get the input based on name and value
+        this.setState({ [e.target.name]: e.target.value });
+    }
+    onChangeSelect =(e)=>{
+        this.setState(prevState=>{
+            let Select_Students= {...prevState.Select_Students};
+            console.log(e.target.key,"prevstate")
+            Select_Students=prevState.Select_Students.append(e.target.value)
             
+       },()=>{ console.log(this.state,"newstate")})
+    }
+    onChangeCourses = (e) => {
+        console.log(e.target.value,"value")
+        if(e.target.value=="ACT"){
+            this.setState({
+                Courses_Taught:{
+                    [e.target.value]:true,
+                    SAT:''
+                }
+            },()=>{console.log(this.state.Courses_Taught,"ACT")})
         }
-    render() {
-        const {answer_id, QuestionName,answer_1,answer_2,answer_3,answer_4,answer_key_index,question_id} = this.state
-        return (
-            <div>
-                <Container style={{marginTop: '50px'}}>
-                    <Card >
-                        <nav className="nav" style={{display:"flex"}}>
-                            <div className="headTitle"><p style={{marginLeft:"5%"}}>Add options</p></div>
-                            <div className="headTitle2"><p style={{marginLeft:"70%", marginTop:"10px"}}>Welcome, Admin!</p></div>
-                        </nav>
+        else{
+            this.setState({
+                Courses_Taught:{
+                    [e.target.value]:true,
+                    ACT:''
+                }
+            },()=>{console.log(this.state.Courses_Taught,"SAT")})
+        }
+       
+     }
+    onSubmit = (e) => {
+        e.preventDefault();
+        // get our form data out of state
+        console.log(this.state,"Courses_Taught")
+        const {
+            Courses_Taught,
+            Select_Teacher,
+            Select_Students
+            } = this.state;
+
+        axios.post('http://localhost:8000/api/classroom/', {  Select_Teacher,Courses_Taught, Select_Students})                   
+            .then(function (response) {
+                  //access the results here....           
+                swal("success!", "Classroom Updated", "success").then(setInterval(function(){window.location.reload();},1500));// alert
+                console.log(response);// log
+              })
+              .catch(function (error) {
+                console.log(error);
+              });
+      }
+    render(){
+        const { 
+            Courses_Taught,
+            Select_Teacher,
+            Select_Students,
+            object,
+         } = this.state;
+        
+        return(
+            
+            <>
+    <Container  style={{marginTop: '50px'}}>
+          
+              <Card>                  
+              <nav className="nav" style={{display:"flex"}}>
+                    <div className="headTitle"><p style={{marginLeft:"5%"}}>Admin Classroom Assignments</p></div>
+                    <div className="headTitle2"><p style={{marginLeft:"70%", marginTop:"10px"}}>Welcome, Admin!</p></div>
+                </nav>                   
+                    <Card.Body >
                         
-                        <Form onSubmit={this.onSubmit}>
-                            <Card.Body>
-                            <Row className="row justify-content-center">
-                            <Col lg={6} sm={12}>
-                            <Form.Group as={Row}>
-                                        <Form.Label htmlFor="select test" className="col col-form-label">Select Test</Form.Label>
-                                            <Col >
-                                                <Form.Control as="select" custom className="selectStyle" id="Test Name" defaultValue={'TestName'}  name="TestName"  onChange={this.onChange} required>
-                                                    
-                                                    <option value="" disabled selected >TestName</option> 
-                                                    { this.state.test.map(test =>
-                                                        <option key={test.quizid} value={test.test_name} >{test.test_name}</option>)}                                           
-                                                </Form.Control>
-                                            </Col>
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row className="row justify-content-center">
-                            <Col lg={6} sm={12}>
-                            <Form.Group as={Row}>
-                                        <Form.Label htmlFor="select Question" className="col col-form-label">Select Question</Form.Label>
-                                            <Col >
-                                                <Form.Control as="select" custom className="selectStyle" id="Question Name" defaultValue={'QuestionName'}  name="QuestionName"  onChange={this.onChange} required>
-                                                    <option value="Question Name"  >Question Name</option> 
-                                                    { this.state.question.map(question =>
-                                                        <option key={question.question_id} value={question.question_text} >{question.question_text}</option>)}                                           
-                                                </Form.Control>
-                                            </Col>
-                                    </Form.Group> 
+                        <Row class="row justify-content-center">                         
+                            <Col sm={12} lg={4} >
+                                <Form.Group as={Row}>
+                                    
+                                    <Form.Label for="Select_Teacher" class="col col-form-label">select teacher</Form.Label>
+                                    <Col>
+                                    <Form.Control as="select" custom className="selectStyle"   value={Select_Teacher} name="Select_Teacher"  onChange={this.onChange} required>
+                                    <option value='' disabled selected>select client</option>
+                                        { this.state.teachers.map(teachers =>
+                                             <option key={teachers.id} value={ teachers.First_Name}>{teachers.First_Name}</option>)}    
+                                    </Form.Control>
                                     </Col>
-                            </Row>
-                            <Row className="row justify-content-center">
-                                    <Col lg={6}>
-                                    <CustomTextBox
-                                        htFor="answer_1" 
-                                        style="col col-form-label"
-                                        txtBoxLabel="Answer1 text"
-                                        txtBoxType="text"
-                                        txtBoxID="answer_1"
-                                        txtBoxPH="Answer 1"                                     
-                                        txtBoxValue={this.state.answers.answer_1}
-                                        changeEvent={this.onChangeAns}
-                                        txtBoxName="answer_1"
-                                        />
-                                    </Col>
-                            </Row>
-                            <Row className="row justify-content-center">
-                            <Col lg={6}>
-                            <CustomTextBox
-                              htFor="answer_2" 
-                              style="col col-form-label"
-                              txtBoxLabel="Answer2 text"
-                              txtBoxType="text"
-                              txtBoxID="answer_2"
-                              txtBoxPH="Answer 2"                                     
-                              txtBoxValue={this.state.answers.answer_2}
-                              changeEvent={this.onChangeAns}
-                              txtBoxName="answer_2"
-                             />
-                             </Col>
-                             </Row>
-                            <Row className="row justify-content-center">
-                            <Col lg={6}>
-                             <CustomTextBox
-                              htFor="answer_3" 
-                              style="col col-form-label"
-                              txtBoxLabel="Answer3 text"
-                              txtBoxType="text"
-                              txtBoxID="answer_3"
-                              txtBoxPH="Answer 3"                                     
-                              txtBoxValue={this.state.answers.answer_3}
-                              changeEvent={this.onChangeAns}
-                              txtBoxName="answer_3"
-                             />
-                             </Col>
-                            </Row>
+                                </Form.Group>
+                            </Col>
                             
-                            <Row className="row justify-content-center">
-                            <Col lg={6}>
-                              <CustomTextBox
-                              htFor="answer_4" 
-                              style="col col-form-label"
-                              txtBoxLabel="Answer4 text"
-                              txtBoxType="text"
-                              txtBoxID="answer_4"
-                              txtBoxPH="Answer 4"                                     
-                              txtBoxValue={this.state.answers.answer_4}
-                              changeEvent={this.onChangeAns}
-                              txtBoxName="answer_4"
-                             />
-                             </Col>
-                            </Row>
-                            <Row className="row justify-content-center">
-                                    <Col lg={6}>
-                                        <Form.Group as={Row}>
-                                            <Form.Label htmlFor="answer key index" className="col col-form-label">answer key index</Form.Label>
-                                            <Col>
-                                                <Form.Control as="select" custom className="selectStyle" id="answer key index" name="answer_key_index" onChange={this.onChange} required>
-                                                    <option value="answer key index"selected disabled>Answer Key Index</option>
-                                                    <option value="1">1</option>
-                                                    <option value="2">2</option>
-                                                    <option value="3">3</option>
-                                                    <option value="4">4</option>
-                                                </Form.Control>
-                                            </Col>
-                                        </Form.Group>
+                            <Col sm={12} lg={4}>                                
+                                <Form.Group as={Row}>
+                                    <Form.Label for="inputtext3" class="col col-form-label">courses taught</Form.Label>
+                                    <Col>
+                                           
+                                     <Form.Control as="select" custom className="selectStyle" id="courses taught" name="Courses_Taught"  onChange={this.onChangeCourses} required>
+                                    <option value="courses taught" disabled selected>courses taught</option>
+                                    <option value="ACT" >ACT</option>
+                                    <option value="SAT">SAT</option>
+
+                                    </Form.Control>
                                     </Col>
-                            </Row>
-                            <Row className="row justify-content-md-center" style={{marginTop:"2%"}}>
-                                        <CustomButton  style="col btnBlue" BtnTxt="Add"  ClickEvent={this.onSubmit} />
-                                        <CustomButton  style="col btnBlue" BtnTxt="Update"  ClickEvent={this.onUpdate}/>    
-                                        <CustomButton  style="col btnBlue" BtnTxt="Import"  ClickEvent={this.onImport}/>
-                                        <CustomButton  style="col btnBlue" BtnTxt="Export" ClickEvent={this.onExport}/>
-                                        <Link to="/steps" style={{color:"white"}}>  <Button style={{marginTop:"5%"}} className="col btnBlue" onClick={this.next}>Add Answers</Button> </Link>                              
-                            </Row>
-                            </Card.Body>
-                        </Form>
-                    </Card>
-                </Container>
-            </div>
+                                </Form.Group>
+                               
+                            </Col>
+                            
+                            <Col sm={12} lg={4}>                                                                                                
+                                <Form.Group as={Row}>
+                                    <Form.Label for="inputtext3" class="col col-form-label">select students</Form.Label>
+                                    <Col> 
+                                    { this.state.students.map((students)=>{
+                                        const object_enroll = JSON.parse(students.Enroll_Program)
+                                        const condition = (students.Assign_Teachers===Select_Teacher && object_enroll.ACT===this.state.Courses_Taught.ACT )
+                                        console.log(object_enroll,"obj")
+                                        console.log(students,"condition")
+                                        console.log(this.state,"state")
+                                        return (
+                                            (students.Assign_Teachers===Select_Teacher && object_enroll.ACT===this.state.Courses_Taught.ACT  )?
+                                             <Form.Check type="checkbox" 
+                                              key={students.id} 
+                                              class="form-check-input"
+                                              name="Select_Students" 
+                                               label={students.Student_First_Name} 
+                                               value={students.Student_First_Name}
+                                        onChange={this.onChangeSelect}  /> :  
+                                        (students.Assign_Teachers===Select_Teacher && object_enroll.SAT===this.state.Courses_Taught.SAT  )?
+                                        <Form.Check type="checkbox" 
+                                              key={students.id} 
+                                              class="form-check-input"
+                                              name="Select_Students" 
+                                               label={students.Student_First_Name} 
+                                               value={students.Student_First_Name}
+                                        onChange={this.onChangeSelect}  />:
+                                        ''
+                                        )
+                                    })}
+                                    {/* { this.state.students.map(students => {
+                                        // let Enroll_Program = JSON.parse(students.Enroll_Program);
+                                        true?<div>{students.First_Name}</div>:<div>{students.Enroll_Program.SAT}</div>
+                                        // (students.Assign_Teachers===Select_Teacher && Enroll_Program.ACT===Courses_Taught.ACT )?
+                                        //      <Form.Check type="checkbox" 
+                                        //       key={students.id} 
+                                        //       class="form-check-input"
+                                        //       name="Select_Students" 
+                                        //        label={students.Student_First_Name} 
+                                        //        value={students.Student_First_Name}
+                                        // onChange={this.onChange}  /> :  
+                                        // (students.Assign_Teachers===Select_Teacher && Enroll_Program.SAT===Courses_Taught.SAT ) ?
+                                        // <Form.Check type="checkbox" 
+                                        //       key={students.id} 
+                                        //       class="form-check-input"
+                                        //       name="Select_Students" 
+                                        //        label={students.Student_First_Name} 
+                                        //        value={students.Student_First_Name}
+                                        // onChange={this.onChange}  />:''
+                                        
+                                    }
+                                    )}    </div>                */}
+                                        {/* <Form.Check type="checkbox" class="form-check-input"
+                                         name="Select_Students" id="" value="1" label="student 1" 
+                                        onChange={this.onChange}  />
+                                        <Form.Check type="checkbox" class="form-check-input" name="Select_Students" id="" value="2" label="student 2" 
+                                        onChange={this.onChange} />
+                                        <Form.Check type="checkbox" class="form-check-input" name="Select_Students" id="" value="3" label="student 3" 
+                                        onChange={this.onChange} />                 */}
+
+                                    </Col>
+                                </Form.Group>
+                            </Col>                         
+                        </Row>
+                        <Row className="row justify-content-center">
+                                          <CustomButton  style="col btnBlue" BtnTxt="Update" ClickEvent={this.onSubmit}/> 
+                                          <CustomButton  style="col btnBlue" BtnTxt="Cancel" />                         
+                        </Row>
+                    </Card.Body>
+              </Card> 
+              <Footer />        
+      </Container> 
+            </>
         )
     }
 }
+
+export default AdminClassroom;
