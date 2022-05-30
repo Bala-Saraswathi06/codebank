@@ -128,7 +128,7 @@ class ManageStudents extends Component{
         .then(res => {
           const teachers = res.data;
           this.setState({ teachers });
-          console.log(teachers);
+          console.log(teachersss);
         })
       }
       
